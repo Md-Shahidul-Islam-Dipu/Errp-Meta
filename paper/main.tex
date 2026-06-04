@@ -104,9 +104,9 @@ a meta-model trained across many users learns an initialization that adapts to a
 new user from a handful of trials~\cite{finn2017model}. We put this idea to the
 test and report three things:
 \begin{itemize}
-\item a head-to-head benchmark of ten personalization methods---three gradient
+\item a head-to-head benchmark of ten personalization methods: three gradient
 meta-learners, two metric meta-learners, a subject-conditioned FiLM encoder, and
-four classical baselines---all evaluated under one leave-one-subject-out protocol;
+four classical baselines, all evaluated under one leave-one-subject-out protocol;
 \item replication on a second, structurally different ErrP paradigm (run as a
 separate LOSO experiment, not trained across corpora), where the advantage holds
 and stays stable across three random seeds; and
@@ -130,7 +130,7 @@ source-pretrained EEGNet as the reference our few-shot methods must beat.
 
 \textbf{Cross-subject transfer for EEG.} Reducing per-user calibration is a
 long-standing goal. Beyond meta-learning, the dominant line is domain
-adaptation---most prominently Riemannian/covariance alignment and Euclidean
+adaptation, most prominently Riemannian/covariance alignment and Euclidean
 alignment of trials before a shared classifier~\cite{zanini2018transfer,he2020transfer},
 surveyed comprehensively by Wu et al.~\cite{wu2022transfer}. These methods adapt
 the feature distribution rather than learning to adapt; we include Riemannian and
@@ -167,8 +167,8 @@ from its gaze. The two paradigms differ in task, montage, channel set, and
 sampling rate. We run the \emph{same} LOSO protocol \emph{separately} on each
 dataset; we do \emph{not} train on one and test on the other, since the corpora
 are not channel- or rate-matched. ``Validation'' therefore denotes
-\emph{replication} of the finding on a second, independent paradigm---evidence
-that the result is not idiosyncratic to one corpus---rather than out-of-distribution
+\emph{replication} of the finding on a second, independent paradigm (evidence
+that the result is not idiosyncratic to one corpus) rather than out-of-distribution
 transfer between corpora.
 
 \subsection{Preprocessing}
@@ -219,7 +219,7 @@ meta-learners, not a from-scratch method.
 Alignment}~\cite{barachant2013classification,zanini2018transfer}: covariance-based
 classifiers on the SPD manifold; their xDAWN spatial filters and tangent-space
 projection are fit on the source subjects, and only the final LDA uses the $K$
-trials---so these too are source-aware.
+trials, so these too are source-aware.
 To further separate the meta-learning approach from data access, we add two
 \emph{fair-transfer} baselines that see exactly the same $N{-}1$ source subjects:
 \textbf{Pretrain-FT} pretrains the same MLP backbone on all source subjects with
@@ -285,9 +285,9 @@ We evaluate LOSO across all subjects, with three random seeds (42, 123, 456)
 and $K\in\{5,10,20\}$. We report balanced accuracy and AUROC, both robust to the
 class imbalance, as mean\,$\pm$\,std over the three seeds. We do not tabulate F1:
 binary F1 depends on which class is labelled positive (the two corpora use opposite
-codings) and rewards majority-class prediction---e.g.\ the majority-predicting
+codings) and rewards majority-class prediction (e.g.\ the majority-predicting
 Pretrain-ZeroShot attains a high binary F1 despite near-chance balanced
-accuracy---so it is misleading here; the error class is the minority in both
+accuracy), so it is misleading here; the error class is the minority in both
 corpora (prior $\sim$0.32 INRIA, $\sim$0.20 coadaptation). The unit of analysis
 for inference is the \emph{subject}: under LOSO the three seeds are repeated
 measurements of the same 16 held-out subjects, not independent samples, so we
@@ -351,8 +351,8 @@ estimates or learned embeddings. As $K$ grows, EEGNet pulls ahead: at $K{=}20$ i
 significantly exceeds Full-MAML, MAML-ANIL, and the FiLM encoder (0.645 vs.\
 0.585--0.590; BH-FDR $p<0.02$, $r=0.72$--$0.79$) and is numerically ahead of
 Reptile (0.645 vs.\ 0.607). Meta-learning's advantage on this dataset is thus
-specific to the extreme low-data regime, where it merely matches---rather than
-beats---a source-pretrained CNN. The strongest gain over Supervised at $K{=}5$ is
+specific to the extreme low-data regime, where it merely matches, rather than
+beats, a source-pretrained CNN. The strongest gain over Supervised at $K{=}5$ is
 Reptile's (median paired difference $+0.051$, 95\% bootstrap CI $[+0.038,+0.086]$).
 AUROC tracks balanced accuracy across $K$ (e.g.\ EEGNet $0.640/0.679/0.693$ and
 Reptile $0.637/0.642/0.648$ at $K{=}5/10/20$); the per-$K$ AUROC table is released
@@ -391,19 +391,19 @@ Cov.\ Align.                   & $0.521 \pm .030$ & 0.566 $\pm$ .009 & 0.564 $\p
 
 The more demanding test is whether the finding reproduces on a structurally
 different paradigm (run as a separate LOSO experiment, not trained across corpora).
-It does, and most clearly at $K{=}5$. On the coadaptation data---a different task,
-montage, and stimulus timing---all meta-learners beat the supervised baseline by
+It does, and most clearly at $K{=}5$. On the coadaptation data (a different task,
+montage, and stimulus timing) all meta-learners beat the supervised baseline by
 roughly 15--16 points ($p=3.1\times10^{-5}$, the exact floor at $N{=}16$, $r=1.0$;
 Reptile median $+0.159$, 95\% CI $[+0.123,+0.187]$). Here several families also beat
-the source-pretrained EEGNet at $K{=}5$---not only the gradient meta-learners
+the source-pretrained EEGNet at $K{=}5$: not only the gradient meta-learners
 (Reptile median $+0.065$, CI $[+0.035,+0.086]$) but also the FiLM encoder
 ($+0.073$) and Prototypical networks ($+0.021$, $p<0.005$); Matching does not.
 This EEGNet gap is confined to $K{=}5$: by $K{=}10$ the meta-learners and EEGNet no
 longer differ significantly ($p=0.40$--$0.63$), and at $K{=}20$ EEGNet is the
 strongest method (0.749). The across-seed spread of the meta-learners is only
 0.001--0.008 balanced accuracy, so the $K{=}5$ result is not seed-dependent. The
-covariance-based baselines again fail to beat supervised---in fact they fall
-significantly below it here---reproducing the same negative result on both datasets.
+covariance-based baselines again fail to beat supervised (in fact they fall
+significantly below it here), reproducing the same negative result on both datasets.
 
 \subsection{Meta-learning objective vs.\ data access}
 Because the meta-learners see every source subject while the from-scratch
@@ -411,8 +411,8 @@ supervised baseline does not, part of their edge could reflect data access rathe
 than the meta-learning objective. The two fair-transfer baselines control for this
 directly: both pretrain on the same $N{-}1$ source subjects \emph{and} use the same
 inverse-frequency class weighting as the meta-learners. They
-differ from the meta-learners in two ways---no episodic meta-objective, and a
-logistic-regression probe instead of gradient adaptation at test time---so the gap
+differ from the meta-learners in two ways: no episodic meta-objective, and a
+logistic-regression probe instead of gradient adaptation at test time, so the gap
 isolates the meta-learning \emph{approach} jointly, not the objective in isolation.
 The meta-learners significantly outperform \emph{both} on \emph{both} datasets at
 every $K$. On the
@@ -424,14 +424,14 @@ the validation data the gaps widen to roughly 13 points over Pretrain-FT
 $K$-shot fine-tuning is not itself a reliable win: Pretrain-FT does not
 significantly beat the from-scratch supervised baseline on the primary dataset
 (and is numerically worse at $K{=}20$), and at $K{=}5$ it trails its own zero-shot
-variant---fitting a head on five noisy trials adds more variance than signal.
+variant: fitting a head on five noisy trials adds more variance than signal.
 Second, simple zero-shot transfer is a surprisingly strong baseline on the
 validation paradigm (0.700, above EEGNet at $K{=}5$), yet the meta-learners still
 beat it. Because these baselines match the meta-learners on both data access and
 class weighting, the residual advantage is attributable to the meta-learning
 approach (episodic training plus gradient adaptation) rather than to source-subject
 exposure or imbalance handling; disentangling the objective from the adaptation
-rule---e.g.\ giving the transfer baselines the same gradient adaptation---is left
+rule (e.g.\ giving the transfer baselines the same gradient adaptation) is left
 to future work.
 
 \subsection{Per-subject analysis}
@@ -461,8 +461,8 @@ three of them on the primary dataset.
 \includegraphics[width=\textwidth]{figures/fig4_ablations.pdf}
 \caption{Ablations (primary dataset). (a) class-weighted vs.\ uniform loss;
 (b) the FiLM gain plotted as the \emph{paired} per-subject difference
-(FiLM\,$-$\,No-FiLM) with a 95\% confidence interval across subjects---matching the
-within-subject test---which excludes zero only at $K{=}5$ ($*$); (c) 32 vs.\ 128
+(FiLM\,$-$\,No-FiLM) with a 95\% confidence interval across subjects (matching the
+within-subject test), which excludes zero only at $K{=}5$ ($*$); (c) 32 vs.\ 128
 PCA components.}
 \label{fig:ablation}
 \end{figure*}
@@ -470,7 +470,7 @@ PCA components.}
 \textbf{Class-weighted vs.\ uniform episodic loss.} This is the most impactful
 choice. Weighting the loss by inverse class frequency lifts Full-MAML balanced
 accuracy by 2--3 points and prevents the model from collapsing onto the majority
-(correct) class---a real risk given the 75/25 split.
+(correct) class, a real risk given the 75/25 split.
 \textbf{FiLM vs.\ no-FiLM.} FiLM conditioning gives a small but significant gain at
 $K{=}5$ ($+1.5$\,pp; paired Wilcoxon, $N{=}16$, $p{=}0.009$, $r{=}0.65$) that
 disappears by $K{=}10$ ($p>0.27$; Fig.~\ref{fig:ablation}b). It is thus a minor,
@@ -499,7 +499,7 @@ $K{=}5$, but the gap closes by $K{=}10$ and reverses by $K{=}20$ (EEGNet 0.749),
 and on the primary dataset they only match EEGNet at $K{=}5$ before EEGNet pulls
 ahead. We emphasize that this is \emph{replication} on a second paradigm, not
 trained transfer across corpora. Meta-learning's practical niche is therefore
-narrow---the extreme low-data regime. The covariance-based methods consistently
+narrow: the extreme low-data regime. The covariance-based methods consistently
 fail at small $K$ on both datasets, consistent with their need for well-conditioned
 covariance estimates.
 
@@ -509,12 +509,12 @@ that pretrain on the same source subjects with the same class-weighted loss, on
 both datasets and at every shot count. These controls are matched on data access
 and class weighting (the latter being the dominant ablation factor) but still
 differ in test-time adaptation, so we attribute the residual gap to the
-meta-learning approach---episodic training together with gradient adaptation---rather
+meta-learning approach (episodic training together with gradient adaptation) rather
 than to data volume or imbalance handling alone.
 
 \textbf{Statistical vs.\ practical significance.} A significant improvement is not
 the same as a usable decoder. On the primary dataset the best methods reach only
-$\sim$0.60 balanced accuracy at $K{=}5$---well above the 0.527 from-scratch
+$\sim$0.60 balanced accuracy at $K{=}5$, well above the 0.527 from-scratch
 baseline in relative terms, but far from a deployable single-trial ErrP detector,
 which for closed-loop correction would need both high error-class recall and low
 false-alarm rates at an operating threshold. The cross-dataset numbers
@@ -529,8 +529,8 @@ matched across method families} (Table~\ref{tab:methods}): the meta-learners use
 signal, so ``meta-learning vs.\ EEGNet'' partly compares input formats; an
 input-matched comparison (EEGNet on PCA features, or a meta-learner on EEGNet's raw
 input) is needed to fully separate the two. (ii)~\emph{EEGNet is used frozen} with
-a logistic-regression probe; an end-to-end fine-tuned EEGNet---plausibly stronger,
-especially at $K{\ge}10$ where EEGNet already leads---is not included. (iii)~The
+a logistic-regression probe; an end-to-end fine-tuned EEGNet (plausibly stronger,
+especially at $K{\ge}10$ where EEGNet already leads) is not included. (iii)~The
 $K$-shot calibration set is \emph{class-balanced}, so the headline ``five trials''
 is five balanced trials; obtaining $K/2$ error trials naturally requires more than
 $K$ raw trials at a 20--30\% error rate, and a deployed user gets a single draw
