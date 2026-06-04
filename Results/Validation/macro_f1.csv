@@ -1,0 +1,13 @@
+method,K=5,K=10,K=20
+EEGNet,n/a (re-run),n/a (re-run),n/a (re-run)
+Reptile,n/a (re-run),n/a (re-run),n/a (re-run)
+SubjectConditioned,n/a (re-run),n/a (re-run),n/a (re-run)
+Full-MAML,n/a (re-run),n/a (re-run),n/a (re-run)
+MAML-ANIL,n/a (re-run),n/a (re-run),n/a (re-run)
+Prototypical,n/a (re-run),n/a (re-run),n/a (re-run)
+Matching,n/a (re-run),n/a (re-run),n/a (re-run)
+CovarianceAlignment,0.497,0.553,0.547
+Riemannian,0.490,0.553,0.565
+Pretrain-ZeroShot,0.665,0.665,0.665
+Pretrain-FT,0.515,0.582,0.580
+Supervised,0.478,0.509,0.532

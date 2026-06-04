@@ -74,9 +74,19 @@ pip install numpy pandas matplotlib seaborn   # subset of requirements
 jupyter nbconvert --to notebook --execute Generate_Figures.ipynb
 ```
 
-Figures are written to `figures/`. Statistical comparisons use paired Wilcoxon
-signed-rank tests at the subject level (N=16, seeds averaged, exact null,
-Benjamini–Hochberg FDR).
+Figures are written to `figures/`. To regenerate the paper's **statistics** (the
+tables and every pairwise test — vs Supervised, vs EEGNet, vs Pretrain-FT/ZeroShot):
+
+```python
+from errp_bci import analysis        # torch-free; reads only Results/ CSVs
+analysis.summary("primary")          # prints table + macro-F1 + Wilcoxon/FDR
+analysis.summary("validation", save_dir="stats")   # also writes CSVs
+```
+
+Comparisons use paired Wilcoxon signed-rank tests at the **subject level**
+(N=16, seeds averaged, exact null, Benjamini–Hochberg FDR; rank-biserial r). Each
+experiment's `Results/<dir>/` already ships the precomputed
+`statistical_tests_paper.csv`, `summary_table.csv`, and `macro_f1.csv`.
 
 ## Citation
 

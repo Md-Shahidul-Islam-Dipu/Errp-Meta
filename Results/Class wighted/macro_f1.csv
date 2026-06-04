@@ -1,0 +1,5 @@
+method,K=5,K=10,K=20
+Full-MAML,n/a (re-run),n/a (re-run),n/a (re-run)
+Full-MAML-Uniform,n/a (re-run),n/a (re-run),n/a (re-run)
+MAML-ANIL,n/a (re-run),n/a (re-run),n/a (re-run)
+MAML-ANIL-Uniform,n/a (re-run),n/a (re-run),n/a (re-run)

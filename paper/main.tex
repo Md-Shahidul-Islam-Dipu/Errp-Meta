@@ -399,10 +399,10 @@ three of them on the primary dataset.
 choice. Weighting the loss by inverse class frequency lifts Full-MAML balanced
 accuracy by 2--3 points and prevents the model from collapsing onto the majority
 (correct) class---a real risk given the 75/25 split.
-\textbf{FiLM vs.\ no-FiLM.} FiLM conditioning helps only marginally---about
-1.5 points at $K{=}5$ and shrinking with more shots---and the across-seed bands
-overlap (Fig.~\ref{fig:ablation}b), so we do not claim it as a reliable driver;
-it is at best a minor contributor.
+\textbf{FiLM vs.\ no-FiLM.} FiLM conditioning gives a small but significant gain at
+$K{=}5$ ($+1.5$\,pp; paired Wilcoxon, $N{=}16$, $p{=}0.009$, $r{=}0.65$) that
+disappears by $K{=}10$ ($p>0.27$; Fig.~\ref{fig:ablation}b). It is thus a minor,
+low-shot-specific contributor rather than a primary driver.
 \textbf{Feature dimensionality (32 vs.\ 128 PCA components).} Quadrupling the PCA
 rank of the flattened waveform from 32 to 128 components did not improve the
 meta-learners, indicating that 32 components already capture the discriminative

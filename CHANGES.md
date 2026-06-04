@@ -71,10 +71,21 @@ method runs the same code path with the same seeding order as the legacy
 notebooks. Attaching an existing `Results/<experiment>/` and re-running resumes
 from checkpoints and reproduces the saved aggregates.
 
+## Reproducible statistics (added post-review)
+
+- `errp_bci/analysis.py` regenerates every paper number from the saved
+  `Results/` per-subject CSVs, with no torch/GPU/dataset required: the mean±std
+  tables, macro-F1 (where confusion counts were persisted), and the paper's
+  inferential procedure — subject-level (N=16, seeds averaged) **exact** Wilcoxon
+  with Benjamini–Hochberg FDR and rank-biserial r — for all comparisons
+  (vs Supervised, vs EEGNet, vs Pretrain-FT/ZeroShot). `errp_bci/__init__.py`
+  loads heavy symbols lazily so `from errp_bci import analysis` works torch-free.
+- Each `Results/<dir>/` now ships precomputed `statistical_tests_paper.csv`,
+  `summary_table.csv`, and `macro_f1.csv`. (The legacy per-seed
+  `statistical_tests.csv` files are superseded: they lacked the EEGNet/Pretrain
+  comparisons and FDR.)
+
 ## Removed / archived
 
 - Legacy notebooks moved to `legacy_notebooks/` (kept for reference).
 - Obsolete in-progress scaffolding removed: `_pretrain_src.py`, `_replace_cell23.pl`.
-- Build/verify tooling kept at repo root: `_build_pkg.py` (regenerates the
-  verbatim modules), `_check_pkg.py` (syntax + undefined-name check),
-  `_import_test.py` (stubbed import-graph check).

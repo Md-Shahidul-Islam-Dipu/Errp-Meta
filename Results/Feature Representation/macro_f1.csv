@@ -1,0 +1,5 @@
+method,K=5,K=10,K=20
+Full-MAML,n/a (re-run),n/a (re-run),n/a (re-run)
+Full-MAML-Raw,n/a (re-run),n/a (re-run),n/a (re-run)
+SubjectConditioned,n/a (re-run),n/a (re-run),n/a (re-run)
+SubjectConditioned-Raw,n/a (re-run),n/a (re-run),n/a (re-run)
