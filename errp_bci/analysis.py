@@ -119,6 +119,16 @@ def _bh_fdr(pvals: np.ndarray, alpha: float = 0.05):
     return out, out < alpha
 
 
+def _boot_median_ci(diff, n_boot=10000, seed=0):
+    """Median paired difference + 95% bootstrap CI over subjects (magnitude that,
+    unlike p/r, does not saturate when all subjects improve)."""
+    rng = np.random.default_rng(seed)
+    med = float(np.median(diff))
+    boots = np.median(rng.choice(diff, size=(n_boot, len(diff)), replace=True), axis=1)
+    lo, hi = np.percentile(boots, [2.5, 97.5])
+    return med, float(lo), float(hi)
+
+
 def _wilcoxon_pair(df, a, b, k, metric):
     va, vb = _subject_means(df, a, k, metric), _subject_means(df, b, k, metric)
     idx = va.index.intersection(vb.index)
@@ -128,15 +138,18 @@ def _wilcoxon_pair(df, a, b, k, metric):
     if n < 2 or np.allclose(diff, 0):
         return dict(k=k, n=n, mean1=float(np.mean(x)) if n else np.nan,
                     mean2=float(np.mean(y)) if n else np.nan,
-                    delta=float(np.mean(diff)) if n else np.nan, p=1.0, r=0.0)
+                    delta=float(np.mean(diff)) if n else np.nan, p=1.0, r=0.0,
+                    median_diff=0.0, ci_lo=0.0, ci_hi=0.0)
     try:
         _, p = wilcoxon(x, y, alternative="two-sided", mode="exact")
     except Exception:
         _, p = wilcoxon(x, y, alternative="two-sided")
     z = norm.ppf(1 - p / 2) * np.sign(np.mean(diff))
     r = float(np.clip(z / np.sqrt(n), -1, 1))
+    med, lo, hi = _boot_median_ci(diff)
     return dict(k=k, n=n, mean1=float(np.mean(x)), mean2=float(np.mean(y)),
-                delta=float(np.mean(diff)), p=float(p), r=r)
+                delta=float(np.mean(diff)), p=float(p), r=r,
+                median_diff=med, ci_lo=lo, ci_hi=hi)
 
 
 def pairwise_tests(experiment: str, results_root: Optional[str] = None,
