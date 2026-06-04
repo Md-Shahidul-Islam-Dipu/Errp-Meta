@@ -317,6 +317,7 @@ significantly different from EEGNet at $K{=}5$. EEGNet overtakes the
 meta-learners at $K{=}10$--$20$.}
 \label{tab:primary}
 \centering
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 Method & $K{=}5$ & $K{=}10$ & $K{=}20$ & AUROC \\
@@ -335,7 +336,7 @@ Pretrain-ZeroShot              & $0.563 \pm .007$ & $0.563 \pm .007$ & $0.563 \p
 Pretrain-FT                    & $0.537 \pm .014$ & $0.542 \pm .012$ & $0.544 \pm .018$ & 0.563 \\
 \textbf{Supervised}            & $0.527 \pm .034$ & $0.563 \pm .015$ & $0.577 \pm .004$ & 0.538 \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \begin{table}[t]
@@ -348,6 +349,7 @@ differ significantly from EEGNet, which is the top method at $K{=}20$. Bold = be
 at that $K$.}
 \label{tab:validation}
 \centering
+\resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
 Method & $K{=}5$ & $K{=}10$ & $K{=}20$ & AUROC \\
@@ -366,7 +368,7 @@ Riemannian                     & $0.514 \pm .007$ & 0.566 $\pm$ .014 & 0.584 $\p
 Cov.\ Align.                   & $0.521 \pm .030$ & 0.566 $\pm$ .009 & 0.564 $\pm$ .009 & 0.534 \\
 \textbf{Supervised}            & $0.563 \pm .013$ & 0.581 $\pm$ .018 & 0.614 $\pm$ .011 & 0.593 \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \subsection{Primary dataset}
