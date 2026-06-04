@@ -1,0 +1,4 @@
+method1,method2,metric,k,n,mean1,mean2,mean_diff,statistic,p_value,significant,effect_r,effect_interp
+SubjectConditioned,SubjectConditioned_NoFiLM,balanced_accuracy,5,16,0.5915742071119832,0.5637515983190442,0.027822608792938852,23.0,0.01824951171875,True,0.5901290982912574,large
+SubjectConditioned,SubjectConditioned_NoFiLM,balanced_accuracy,10,16,0.5932349277822698,0.5704896832529822,0.022745244529287667,35.0,0.09344482421875,False,0.4193749043448062,medium
+SubjectConditioned,SubjectConditioned_NoFiLM,balanced_accuracy,20,16,0.5987923477580352,0.5741173608451557,0.024674986912879608,45.0,0.252227783203125,False,0.2862387593919965,small

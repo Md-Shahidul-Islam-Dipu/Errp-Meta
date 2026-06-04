@@ -1,0 +1,45 @@
+# ─── Confidential — never publish (peer review + internal planning) ───────────
+Full_Review.md
+paper/flaws_to_fix.md
+paper/FIX_PLAN.md
+paper/REVIEW_RESPONSE.md
+WORK_OVERVIEW.md
+EXTENSIONS.md
+
+# ─── Raw datasets — do NOT redistribute; link to the original sources ─────────
+inria-bci-challenge/
+errp-coadaption/
+errp-coadaptation/
+**/*.set
+**/*.fdt
+**/*.edf
+**/*.gdf
+TrainLabels.csv
+train/
+
+# ─── Python / Jupyter caches ──────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+*.egg-info/
+.venv/
+.env
+
+# ─── LaTeX build artifacts ────────────────────────────────────────────────────
+paper/*.aux
+paper/*.bbl
+paper/*.blg
+paper/*.log
+paper/*.out
+paper/*.synctex.gz
+paper/*.toc
+paper/*.fls
+paper/*.fdb_latexmk
+
+# ─── Local tooling / upload artifacts ─────────────────────────────────────────
+.claude/
+*.zip
+
+# ─── OS cruft ─────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db

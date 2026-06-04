@@ -1,0 +1,1 @@
+{"subject_id": "S08", "k_shots": {"5": {"accuracy": 0.705, "balanced_accuracy": 0.705, "f1_score": 0.6566296166296166, "auroc": 0.776875}, "10": {"accuracy": 0.7200000000000001, "balanced_accuracy": 0.72, "f1_score": 0.7187783863659798, "auroc": 0.7743749999999999}, "20": {"accuracy": 0.72, "balanced_accuracy": 0.72, "f1_score": 0.7235705393347386, "auroc": 0.8102499999999999}}}
