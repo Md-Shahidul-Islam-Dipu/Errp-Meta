@@ -233,9 +233,9 @@ summarizes where every method sits on data access, class weighting, adaptation,
 and input.
 
 \begin{table}[t]
-\caption{Method characteristics. Src.\ = uses source-subject data; CW = class-weighted
-loss; input is what the classifier ingests (PCA = 32 whitened components of the
-flattened waveform; flat = flattened waveform; epochs = raw $C\times T$ tensor).}
+\caption{Method characteristics. Src.\ = sees source-subject data; CW =
+class-weighted loss. Input: PCA ($32$ components of the flattened waveform),
+flat (flattened waveform), or epochs (raw $C\times T$).}
 \label{tab:methods}
 \centering
 \footnotesize
@@ -308,13 +308,13 @@ the bootstrap intervals quantify the latter.
 % ===================================================================
 \section{Results}
 
+\subsection{Primary dataset}
+
 \begin{table}[t]
-\caption{Primary dataset (INRIA NER 2015): balanced accuracy at
-$K\in\{5,10,20\}$ and AUROC at $K{=}5$, mean\,$\pm$\,std over three seeds, LOSO
-($N{=}16$ subjects). ${\dagger}$ significantly better than Supervised at $K{=}5$
-(paired Wilcoxon on per-subject means, BH-FDR $p<0.05$). ${\ddagger}$ not
-significantly different from EEGNet at $K{=}5$. EEGNet overtakes the
-meta-learners at $K{=}10$--$20$.}
+\caption{Primary dataset (INRIA NER 2015): balanced accuracy (mean\,$\pm$\,std,
+3 seeds, $N{=}16$) and AUROC at $K{=}5$. ${\dagger}$ beats Supervised;
+${\ddagger}$ not distinguishable from EEGNet (both at $K{=}5$, BH-FDR $p{<}0.05$).
+Bold = best per column.}
 \label{tab:primary}
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -339,14 +339,32 @@ Pretrain-FT                    & $0.537 \pm .014$ & $0.542 \pm .012$ & $0.544 \p
 \end{tabular}}
 \end{table}
 
+At $K{=}5$, the gradient-based meta-learners, the FiLM encoder, and EEGNet all
+significantly outperform the from-scratch supervised baseline
+(Table~\ref{tab:primary}; BH-FDR $p<0.05$,
+$r=0.82$--$1.0$, $\Delta=5$--$7$\,pp). No meta-learner significantly differs from
+EEGNet at $K{=}5$ ($p=0.49$--$0.94$): at this shot count they are effectively
+equivalent. The metric-based methods (Prototypical, Matching) and the
+covariance-based baselines do not significantly beat the supervised baseline at
+any $K$, consistent with their need for more samples to stabilize covariance
+estimates or learned embeddings. As $K$ grows, EEGNet pulls ahead: at $K{=}20$ it
+significantly exceeds Full-MAML, MAML-ANIL, and the FiLM encoder (0.645 vs.\
+0.585--0.590; BH-FDR $p<0.02$, $r=0.72$--$0.79$) and is numerically ahead of
+Reptile (0.645 vs.\ 0.607). Meta-learning's advantage on this dataset is thus
+specific to the extreme low-data regime, where it merely matches---rather than
+beats---a source-pretrained CNN. The strongest gain over Supervised at $K{=}5$ is
+Reptile's (median paired difference $+0.051$, 95\% bootstrap CI $[+0.038,+0.086]$).
+AUROC tracks balanced accuracy across $K$ (e.g.\ EEGNet $0.640/0.679/0.693$ and
+Reptile $0.637/0.642/0.648$ at $K{=}5/10/20$); the per-$K$ AUROC table is released
+with the code.
+
+\subsection{Replication on a second dataset}
+
 \begin{table}[t]
-\caption{Second-dataset replication (ErrP-Coadaptation): balanced accuracy at
-$K\in\{5,10,20\}$ and AUROC at $K{=}5$, mean\,$\pm$\,std over three seeds, LOSO
-($N{=}16$ subjects). ${\dagger}$ significantly better than Supervised at $K{=}5$
-(BH-FDR $p<0.05$). At $K{=}5$ the gradient meta-learners, the FiLM encoder, and
-Prototypical also beat EEGNet (BH-FDR $p<0.005$); at $K{=}10$--$20$ they do not
-differ significantly from EEGNet, which is the top method at $K{=}20$. Bold = best
-at that $K$.}
+\caption{Second-dataset replication (ErrP-Coadaptation), same format as
+Table~\ref{tab:primary}. ${\dagger}$ beats Supervised at $K{=}5$ (BH-FDR
+$p{<}0.05$); bold = best per column. Meta-learners, FiLM, and Prototypical beat
+EEGNet at $K{=}5$ only.}
 \label{tab:validation}
 \centering
 \resizebox{\columnwidth}{!}{%
@@ -371,27 +389,6 @@ Cov.\ Align.                   & $0.521 \pm .030$ & 0.566 $\pm$ .009 & 0.564 $\p
 \end{tabular}}
 \end{table}
 
-\subsection{Primary dataset}
-At $K{=}5$, the gradient-based meta-learners, the FiLM encoder, and EEGNet all
-significantly outperform the from-scratch supervised baseline
-(Table~\ref{tab:primary}; BH-FDR $p<0.05$,
-$r=0.82$--$1.0$, $\Delta=5$--$7$\,pp). No meta-learner significantly differs from
-EEGNet at $K{=}5$ ($p=0.49$--$0.94$): at this shot count they are effectively
-equivalent. The metric-based methods (Prototypical, Matching) and the
-covariance-based baselines do not significantly beat the supervised baseline at
-any $K$, consistent with their need for more samples to stabilize covariance
-estimates or learned embeddings. As $K$ grows, EEGNet pulls ahead: at $K{=}20$ it
-significantly exceeds Full-MAML, MAML-ANIL, and the FiLM encoder (0.645 vs.\
-0.585--0.590; BH-FDR $p<0.02$, $r=0.72$--$0.79$) and is numerically ahead of
-Reptile (0.645 vs.\ 0.607). Meta-learning's advantage on this dataset is thus
-specific to the extreme low-data regime, where it merely matches---rather than
-beats---a source-pretrained CNN. The strongest gain over Supervised at $K{=}5$ is
-Reptile's (median paired difference $+0.051$, 95\% bootstrap CI $[+0.038,+0.086]$).
-AUROC tracks balanced accuracy across $K$ (e.g.\ EEGNet $0.640/0.679/0.693$ and
-Reptile $0.637/0.642/0.648$ at $K{=}5/10/20$); the per-$K$ AUROC table is released
-with the code.
-
-\subsection{Replication on a second dataset}
 The more demanding test is whether the finding reproduces on a structurally
 different paradigm (run as a separate LOSO experiment, not trained across corpora).
 It does, and most clearly at $K{=}5$. On the coadaptation data---a different task,
@@ -458,6 +455,18 @@ the gain.}
 \section{Ablations}
 Which design choices actually carry the result? Fig.~\ref{fig:ablation} isolates
 three of them on the primary dataset.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/fig4_ablations.pdf}
+\caption{Ablations (primary dataset). (a) class-weighted vs.\ uniform loss;
+(b) the FiLM gain plotted as the \emph{paired} per-subject difference
+(FiLM\,$-$\,No-FiLM) with a 95\% confidence interval across subjects---matching the
+within-subject test---which excludes zero only at $K{=}5$ ($*$); (c) 32 vs.\ 128
+PCA components.}
+\label{fig:ablation}
+\end{figure*}
+
 \textbf{Class-weighted vs.\ uniform episodic loss.} This is the most impactful
 choice. Weighting the loss by inverse class frequency lifts Full-MAML balanced
 accuracy by 2--3 points and prevents the model from collapsing onto the majority
@@ -470,17 +479,6 @@ low-shot-specific contributor rather than a primary driver.
 rank of the flattened waveform from 32 to 128 components did not improve the
 meta-learners, indicating that 32 components already capture the discriminative
 ErrP morphology and that the aggressive compression is not the bottleneck.
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=\textwidth]{figures/fig4_ablations.pdf}
-\caption{Ablations (primary dataset). (a) class-weighted vs.\ uniform loss;
-(b) the FiLM gain plotted as the \emph{paired} per-subject difference
-(FiLM\,$-$\,No-FiLM) with a 95\% confidence interval across subjects---matching the
-within-subject test---which excludes zero only at $K{=}5$ ($*$); (c) 32 vs.\ 128
-PCA components.}
-\label{fig:ablation}
-\end{figure*}
 
 % ===================================================================
 \section{Discussion}
