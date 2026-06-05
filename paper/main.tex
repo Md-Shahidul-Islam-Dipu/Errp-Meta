@@ -44,35 +44,26 @@
 
 % ===================================================================
 \begin{abstract}
-When a brain-computer interface (BCI) makes a mistake, the user's
-electroencephalogram (EEG) carries a tell-tale error-related potential (ErrP)
-that the system can use to detect and correct itself. The difficulty is that
-ErrPs look different from one person to the next, so a fresh user typically has
-to sit through a long calibration session before the decoder is any good. We ask
-whether meta-learning can shorten that session. Instead of fitting a separate
-model per user, a meta-model learns an initialization across users that a new
-user can adapt from a few class-balanced calibration trials. We compare ten
-approaches under one leave-one-subject-out (LOSO) protocol, run independently on
-two structurally different ErrP datasets (we do not train on one and test on the
-other): three gradient-based meta-learners (MAML, ANIL, Reptile), two metric-based
-ones (Prototypical and Matching networks), a subject-conditioned encoder built on
-feature-wise linear modulation (FiLM), and four classical baselines (a supervised
-MLP, EEGNet, and two Riemannian methods), plus two transfer controls that share
-the source-subject data. At a five-trial calibration budget, the gradient-based
-meta-learners, the FiLM encoder, and a source-pretrained EEGNet all significantly
-improve balanced accuracy over a from-scratch supervised baseline on both datasets
-(paired Wilcoxon at the subject level, $N{=}16$, BH-FDR $p<0.05$). The advantage
-\emph{replicates} on the second, independent paradigm rather than transferring to
-it: there, at $K{=}5$, the gradient meta-learners, the FiLM encoder, and
-Prototypical networks all outperform EEGNet by several points, though this edge
-closes by $K{=}10$. The meta-learners also surpass transfer baselines that
-pretrain on the same source subjects with the same class-weighted loss; because
-test-time adaptation still differs, we attribute the residual gain to the
-meta-learning \emph{approach} (episodic training with gradient adaptation) rather
-than data access alone. Ablations show that class-weighted episodic loss is the
-most important design choice, while FiLM conditioning and feature dimensionality
-contribute little. We frame the result as improved low-data personalization, not a
-deployment-ready decoder.
+When a brain-computer interface (BCI) errs, the user's electroencephalogram (EEG)
+carries an error-related potential (ErrP) that the system can use to self-correct.
+Because ErrP morphology varies across people, each new user must sit through a long
+calibration session. We ask whether meta-learning can shorten it: instead of one
+decoder per user, a meta-model learns an initialization that a new user adapts from
+a few class-balanced trials. Under one leave-one-subject-out protocol, run
+separately on two structurally different ErrP datasets (not trained across them), we
+benchmark ten methods (three gradient-based and two metric-based meta-learners, a
+FiLM subject-conditioned encoder, and four classical baselines including a
+source-pretrained EEGNet) plus two transfer controls that share the source data. At
+a five-trial budget, the gradient meta-learners, the FiLM encoder, and EEGNet all
+significantly beat a from-scratch supervised baseline on both datasets (subject-level
+Wilcoxon, $N{=}16$, BH-FDR $p<0.05$). The finding \emph{replicates} on the second
+paradigm, where the meta-learners, the FiLM encoder, and Prototypical networks also
+beat EEGNet at $K{=}5$, though this edge closes by $K{=}10$. The meta-learners
+further surpass transfer baselines matched on source data and class weighting; since
+test-time adaptation still differs, we credit the meta-learning approach rather than
+data access alone. Ablations show class-weighted episodic loss is the dominant design
+choice, while FiLM and feature dimensionality add little. We frame the result as
+improved low-data personalization, not a deployment-ready decoder.
 \end{abstract}
 
 \begin{IEEEkeywords}
