@@ -1,0 +1,223 @@
+
+=== acc_balanced ===
+                      K=4   K=10   K=20
+EEGNet-FT           0.795  0.798  0.801
+EEGNet-ZeroShot     0.792  0.792  0.792
+ANIL-EEGNet         0.788  0.788  0.788
+Reptile             0.731  0.733  0.735
+SubjectConditioned  0.728  0.730  0.730
+Full-MAML           0.723  0.730  0.732
+MAML-ANIL           0.720  0.725  0.728
+PCA-ZeroShot        0.702  0.702  0.700
+Reptile-EEGNet      0.673  0.699  0.720
+EEGNet              0.656  0.722  0.748
+MDWM                0.642  0.682  0.687
+xDAWN-MDM           0.612  0.654  0.677
+PCA-Probe           0.590  0.638  0.667
+Supervised          0.553  0.586  0.620
+
+=== acc_natural ===
+                      K=4   K=10   K=20
+EEGNet-ZeroShot     0.792  0.792  0.792
+EEGNet-FT           0.791  0.799  0.801
+ANIL-EEGNet         0.789  0.788  0.788
+SubjectConditioned  0.723  0.726  0.730
+Reptile             0.716  0.728  0.732
+MAML-ANIL           0.713  0.722  0.725
+Full-MAML           0.708  0.724  0.730
+PCA-ZeroShot        0.702  0.701  0.701
+EEGNet              0.671  0.668  0.708
+Reptile-EEGNet      0.652  0.689  0.706
+MDWM                0.624  0.658  0.681
+PCA-Probe           0.612  0.613  0.640
+xDAWN-MDM           0.591  0.616  0.652
+Supervised          0.524  0.559  0.574
+
+=== acc_contiguous ===
+                      K=4   K=10   K=20
+EEGNet-ZeroShot     0.792  0.792  0.791
+EEGNet-FT           0.789  0.795  0.799
+ANIL-EEGNet         0.789  0.788  0.787
+SubjectConditioned  0.722  0.728  0.729
+Reptile             0.717  0.727  0.729
+MAML-ANIL           0.714  0.721  0.723
+Full-MAML           0.711  0.723  0.727
+PCA-ZeroShot        0.701  0.701  0.702
+EEGNet              0.677  0.674  0.703
+Reptile-EEGNet      0.655  0.687  0.706
+MDWM                0.623  0.648  0.668
+PCA-Probe           0.618  0.605  0.632
+xDAWN-MDM           0.588  0.605  0.639
+Supervised          0.524  0.546  0.566
+
+=== auroc_balanced ===
+                      K=4   K=10   K=20
+ANIL-EEGNet         0.879  0.879  0.879
+EEGNet-FT           0.876  0.878  0.879
+EEGNet-ZeroShot     0.876  0.876  0.876
+Reptile             0.809  0.811  0.812
+SubjectConditioned  0.804  0.805  0.804
+Full-MAML           0.803  0.805  0.803
+MAML-ANIL           0.801  0.801  0.799
+PCA-ZeroShot        0.774  0.775  0.773
+Reptile-EEGNet      0.737  0.770  0.793
+EEGNet              0.737  0.802  0.829
+MDWM                0.713  0.763  0.769
+xDAWN-MDM           0.664  0.716  0.749
+PCA-Probe           0.647  0.696  0.723
+Supervised          0.575  0.622  0.667
+
+=== zero_error ===
+k              4      10     20
+protocol                       
+balanced    0.000  0.000  0.000
+contiguous  0.344  0.106  0.069
+natural     0.319  0.062  0.031
+
+=== E1 ===
+                     a           b    protocol  k   n  mean_a  mean_b  delta  n_better      p      r  median  ci_lo  ci_hi  p_fdr    sig
+0              Reptile  Supervised    balanced  4  16   0.731   0.553  0.178        16  0.000  1.000   0.188  0.153  0.199  0.000   True
+1              Reptile      EEGNet    balanced  4  16   0.731   0.656  0.074        14  0.000  0.947   0.074  0.036  0.097  0.000   True
+2              Reptile   EEGNet-FT    balanced  4  16   0.731   0.795 -0.065         1  0.000 -1.000  -0.058 -0.087 -0.049  0.000   True
+3            Full-MAML  Supervised    balanced  4  16   0.723   0.553  0.170        16  0.000  1.000   0.186  0.145  0.202  0.000   True
+4            Full-MAML      EEGNet    balanced  4  16   0.723   0.656  0.067        14  0.000  0.947   0.065  0.025  0.083  0.000   True
+5            Full-MAML   EEGNet-FT    balanced  4  16   0.723   0.795 -0.072         1  0.000 -0.947  -0.075 -0.101 -0.048  0.000   True
+6            MAML-ANIL  Supervised    balanced  4  16   0.720   0.553  0.168        16  0.000  1.000   0.186  0.143  0.201  0.000   True
+7            MAML-ANIL      EEGNet    balanced  4  16   0.720   0.656  0.064        14  0.000  0.903   0.060  0.029  0.083  0.000   True
+8            MAML-ANIL   EEGNet-FT    balanced  4  16   0.720   0.795 -0.075         1  0.000 -0.978  -0.076 -0.111 -0.056  0.000   True
+9   SubjectConditioned  Supervised    balanced  4  16   0.728   0.553  0.176        16  0.000  1.000   0.189  0.146  0.206  0.000   True
+10  SubjectConditioned      EEGNet    balanced  4  16   0.728   0.656  0.072        16  0.000  1.000   0.059  0.030  0.090  0.000   True
+11  SubjectConditioned   EEGNet-FT    balanced  4  16   0.728   0.795 -0.067         1  0.000 -0.947  -0.070 -0.097 -0.052  0.000   True
+12             Reptile  Supervised     natural  4  16   0.716   0.524  0.192        16  0.000  1.000   0.200  0.160  0.210  0.000   True
+13             Reptile      EEGNet     natural  4  16   0.716   0.671  0.044        12  0.034  0.531   0.043  0.014  0.080  0.039   True
+14             Reptile   EEGNet-FT     natural  4  16   0.716   0.791 -0.075         1  0.000 -1.000  -0.070 -0.088 -0.051  0.000   True
+15           Full-MAML  Supervised     natural  4  16   0.708   0.524  0.185        16  0.000  1.000   0.183  0.152  0.212  0.000   True
+16           Full-MAML      EEGNet     natural  4  16   0.708   0.671  0.037        12  0.051  0.489   0.030  0.001  0.077  0.055  False
+17           Full-MAML   EEGNet-FT     natural  4  16   0.708   0.791 -0.083         1  0.000 -1.000  -0.078 -0.104 -0.060  0.000   True
+18           MAML-ANIL  Supervised     natural  4  16   0.713   0.524  0.190        16  0.000  1.000   0.193  0.163  0.217  0.000   True
+19           MAML-ANIL      EEGNet     natural  4  16   0.713   0.671  0.042        12  0.029  0.546   0.034  0.010  0.083  0.035   True
+20           MAML-ANIL   EEGNet-FT     natural  4  16   0.713   0.791 -0.078         1  0.000 -0.978  -0.087 -0.099 -0.048  0.000   True
+21  SubjectConditioned  Supervised     natural  4  16   0.723   0.524  0.200        16  0.000  1.000   0.200  0.178  0.225  0.000   True
+22  SubjectConditioned      EEGNet     natural  4  16   0.723   0.671  0.052        13  0.004  0.716   0.042  0.023  0.080  0.005   True
+23  SubjectConditioned   EEGNet-FT     natural  4  16   0.723   0.791 -0.068         1  0.000 -0.926  -0.076 -0.093 -0.049  0.000   True
+24             Reptile  Supervised  contiguous  4  16   0.717   0.524  0.193        16  0.000  1.000   0.202  0.149  0.223  0.000   True
+25             Reptile      EEGNet  contiguous  4  16   0.717   0.677  0.041        11  0.065  0.461   0.048 -0.009  0.074  0.069  False
+26             Reptile   EEGNet-FT  contiguous  4  16   0.717   0.789 -0.072         1  0.000 -0.978  -0.067 -0.095 -0.057  0.000   True
+27           Full-MAML  Supervised  contiguous  4  16   0.711   0.524  0.187        16  0.000  1.000   0.188  0.141  0.223  0.000   True
+28           Full-MAML      EEGNet  contiguous  4  16   0.711   0.677  0.034        11  0.130  0.379   0.037 -0.012  0.088  0.130  False
+29           Full-MAML   EEGNet-FT  contiguous  4  16   0.711   0.789 -0.078         1  0.000 -0.926  -0.075 -0.107 -0.058  0.000   True
+30           MAML-ANIL  Supervised  contiguous  4  16   0.714   0.524  0.190        16  0.000  1.000   0.200  0.144  0.228  0.000   True
+31           MAML-ANIL      EEGNet  contiguous  4  16   0.714   0.677  0.038        11  0.105  0.406   0.037 -0.008  0.084  0.108  False
+32           MAML-ANIL   EEGNet-FT  contiguous  4  16   0.714   0.789 -0.075         1  0.000 -0.947  -0.083 -0.101 -0.054  0.000   True
+33  SubjectConditioned  Supervised  contiguous  4  16   0.722   0.524  0.199        16  0.000  1.000   0.209  0.172  0.228  0.000   True
+34  SubjectConditioned      EEGNet  contiguous  4  16   0.722   0.677  0.046        12  0.044  0.503   0.051  0.002  0.088  0.050   True
+35  SubjectConditioned   EEGNet-FT  contiguous  4  16   0.722   0.789 -0.067         1  0.000 -0.947  -0.064 -0.103 -0.051  0.000   True
+
+=== E1_single_draw ===
+                     a           b    protocol  k  n_draws  p_win  p_tie  mean_diff  a_p10  b_p10  a_sd_draw  b_sd_draw
+0              Reptile  Supervised    balanced  4      160  0.988  0.000      0.178  0.665  0.491      0.014      0.048
+1              Reptile      EEGNet    balanced  4      160  0.781  0.000      0.074  0.665  0.540      0.014      0.076
+2   SubjectConditioned  Supervised    balanced  4      160  0.988  0.000      0.176  0.666  0.491      0.014      0.048
+3   SubjectConditioned      EEGNet    balanced  4      160  0.769  0.006      0.072  0.666  0.540      0.014      0.076
+4              Reptile  Supervised     natural  4      160  1.000  0.000      0.192  0.612  0.489      0.025      0.036
+5              Reptile      EEGNet     natural  4      160  0.612  0.000      0.044  0.612  0.507      0.025      0.102
+6   SubjectConditioned  Supervised     natural  4      160  1.000  0.000      0.200  0.649  0.489      0.016      0.036
+7   SubjectConditioned      EEGNet     natural  4      160  0.594  0.000      0.052  0.649  0.507      0.016      0.102
+8              Reptile  Supervised  contiguous  4      160  1.000  0.000      0.193  0.636  0.486      0.023      0.037
+9              Reptile      EEGNet  contiguous  4      160  0.575  0.000      0.041  0.636  0.502      0.023      0.098
+10  SubjectConditioned  Supervised  contiguous  4      160  1.000  0.000      0.199  0.655  0.486      0.013      0.037
+11  SubjectConditioned      EEGNet  contiguous  4      160  0.569  0.000      0.046  0.655  0.502      0.013      0.098
+
+=== E2E3 ===
+                  a                b  protocol   k   n  mean_a  mean_b  delta  n_better      p      r  median  ci_lo  ci_hi  p_fdr    sig
+0         MAML-ANIL        PCA-Probe  balanced   4  16   0.720   0.590  0.131        16  0.000  1.000   0.138  0.101  0.156  0.000   True
+1       ANIL-EEGNet           EEGNet  balanced   4  16   0.788   0.656  0.132        16  0.000  1.000   0.117  0.101  0.156  0.000   True
+2         MAML-ANIL      ANIL-EEGNet  balanced   4  16   0.720   0.788 -0.068         0  0.000 -1.000  -0.067 -0.091 -0.039  0.000   True
+3           Reptile   Reptile-EEGNet  balanced   4  16   0.731   0.673  0.058        14  0.001  0.860   0.054  0.035  0.092  0.001   True
+4         EEGNet-FT           EEGNet  balanced   4  16   0.795   0.656  0.139        16  0.000  1.000   0.134  0.121  0.154  0.000   True
+5           Reptile        EEGNet-FT  balanced   4  16   0.731   0.795 -0.065         1  0.000 -1.000  -0.058 -0.087 -0.049  0.000   True
+6       ANIL-EEGNet       Supervised  balanced   4  16   0.788   0.553  0.235        16  0.000  1.000   0.240  0.206  0.266  0.000   True
+7    Reptile-EEGNet       Supervised  balanced   4  16   0.673   0.553  0.120        16  0.000  1.000   0.121  0.095  0.145  0.000   True
+8   EEGNet-ZeroShot          Reptile  balanced   4  16   0.792   0.731  0.062        15  0.000  1.000   0.051  0.046  0.079  0.000   True
+9       ANIL-EEGNet  EEGNet-ZeroShot  balanced   4  16   0.788   0.792 -0.004         6  0.495 -0.170  -0.007 -0.022  0.015  0.495  False
+10      ANIL-EEGNet        EEGNet-FT  balanced   4  16   0.788   0.795 -0.007         7  0.323 -0.247  -0.011 -0.019  0.012  0.355  False
+11        MAML-ANIL        PCA-Probe  balanced  10  16   0.725   0.638  0.087        16  0.000  1.000   0.091  0.076  0.102  0.000   True
+12      ANIL-EEGNet           EEGNet  balanced  10  16   0.788   0.722  0.066        16  0.000  1.000   0.064  0.039  0.089  0.000   True
+13        MAML-ANIL      ANIL-EEGNet  balanced  10  16   0.725   0.788 -0.063         1  0.000 -1.000  -0.061 -0.080 -0.035  0.000   True
+14          Reptile   Reptile-EEGNet  balanced  10  16   0.733   0.699  0.035        12  0.016  0.605   0.039  0.011  0.075  0.020   True
+15        EEGNet-FT           EEGNet  balanced  10  16   0.798   0.722  0.076        16  0.000  1.000   0.072  0.054  0.086  0.000   True
+16          Reptile        EEGNet-FT  balanced  10  16   0.733   0.798 -0.065         1  0.000 -0.978  -0.060 -0.090 -0.046  0.000   True
+17      ANIL-EEGNet       Supervised  balanced  10  16   0.788   0.586  0.202        16  0.000  1.000   0.213  0.176  0.238  0.000   True
+18   Reptile-EEGNet       Supervised  balanced  10  16   0.699   0.586  0.113        16  0.000  1.000   0.106  0.081  0.144  0.000   True
+19  EEGNet-ZeroShot          Reptile  balanced  10  16   0.792   0.733  0.059        15  0.000  0.978   0.055  0.043  0.071  0.000   True
+20      ANIL-EEGNet  EEGNet-ZeroShot  balanced  10  16   0.788   0.792 -0.004         7  0.464 -0.183  -0.008 -0.022  0.011  0.494  False
+21      ANIL-EEGNet        EEGNet-FT  balanced  10  16   0.788   0.798 -0.011         6  0.144 -0.365  -0.012 -0.023  0.007  0.170  False
+22        MAML-ANIL        PCA-Probe  balanced  20  16   0.728   0.667  0.061        15  0.000  1.000   0.061  0.046  0.087  0.000   True
+23      ANIL-EEGNet           EEGNet  balanced  20  16   0.788   0.748  0.039        15  0.000  1.000   0.031  0.021  0.053  0.000   True
+24        MAML-ANIL      ANIL-EEGNet  balanced  20  16   0.728   0.788 -0.059         1  0.000 -1.000  -0.058 -0.079 -0.036  0.000   True
+25          Reptile   Reptile-EEGNet  balanced  20  16   0.735   0.720  0.015        10  0.231  0.299   0.013 -0.007  0.042  0.263  False
+26        EEGNet-FT           EEGNet  balanced  20  16   0.801   0.748  0.052        16  0.000  1.000   0.050  0.044  0.062  0.000   True
+27          Reptile        EEGNet-FT  balanced  20  16   0.735   0.801 -0.065         1  0.000 -0.978  -0.058 -0.088 -0.045  0.000   True
+28      ANIL-EEGNet       Supervised  balanced  20  16   0.788   0.620  0.167        16  0.000  1.000   0.164  0.150  0.192  0.000   True
+29   Reptile-EEGNet       Supervised  balanced  20  16   0.720   0.620  0.100        15  0.000  1.000   0.104  0.071  0.135  0.000   True
+30  EEGNet-ZeroShot          Reptile  balanced  20  16   0.792   0.735  0.057        15  0.000  0.947   0.054  0.039  0.077  0.000   True
+31      ANIL-EEGNet  EEGNet-ZeroShot  balanced  20  16   0.788   0.792 -0.004         7  0.495 -0.170  -0.008 -0.020  0.015  0.495  False
+32      ANIL-EEGNet        EEGNet-FT  balanced  20  16   0.788   0.801 -0.013         6  0.093 -0.419  -0.018 -0.029  0.007  0.114  False
+
+=== E5 ===
+            a           b    protocol   k   n  mean_a  mean_b  delta  n_better      p      r  median  ci_lo  ci_hi  p_fdr   sig
+0     Reptile        MDWM    balanced   4  16   0.731   0.642  0.089        16  0.000  1.000   0.079  0.061  0.101  0.000  True
+1     Reptile   xDAWN-MDM    balanced   4  16   0.731   0.612  0.118        16  0.000  1.000   0.113  0.095  0.140  0.000  True
+2        MDWM  Supervised    balanced   4  16   0.642   0.553  0.089        16  0.000  1.000   0.091  0.065  0.112  0.000  True
+3   xDAWN-MDM  Supervised    balanced   4  16   0.612   0.553  0.059        16  0.000  1.000   0.057  0.035  0.085  0.000  True
+4     Reptile        MDWM    balanced  10  16   0.733   0.682  0.051        14  0.000  0.903   0.041  0.025  0.075  0.000  True
+5     Reptile   xDAWN-MDM    balanced  10  16   0.733   0.654  0.079        16  0.000  1.000   0.080  0.059  0.093  0.000  True
+6        MDWM  Supervised    balanced  10  16   0.682   0.586  0.096        16  0.000  1.000   0.094  0.079  0.111  0.000  True
+7   xDAWN-MDM  Supervised    balanced  10  16   0.654   0.586  0.068        15  0.000  1.000   0.055  0.049  0.075  0.000  True
+8     Reptile        MDWM    balanced  20  16   0.735   0.687  0.048        14  0.001  0.803   0.047  0.020  0.072  0.001  True
+9     Reptile   xDAWN-MDM    balanced  20  16   0.735   0.677  0.059        14  0.000  0.926   0.059  0.044  0.095  0.000  True
+10       MDWM  Supervised    balanced  20  16   0.687   0.620  0.067        14  0.001  0.841   0.075  0.052  0.092  0.001  True
+11  xDAWN-MDM  Supervised    balanced  20  16   0.677   0.620  0.056        15  0.002  0.768   0.059  0.033  0.076  0.002  True
+12    Reptile        MDWM  contiguous   4  16   0.717   0.623  0.094        15  0.000  1.000   0.103  0.067  0.129  0.000  True
+13    Reptile   xDAWN-MDM  contiguous   4  16   0.717   0.588  0.129        16  0.000  1.000   0.142  0.104  0.158  0.000  True
+14       MDWM  Supervised  contiguous   4  16   0.623   0.524  0.099        16  0.000  1.000   0.090  0.080  0.116  0.000  True
+15  xDAWN-MDM  Supervised  contiguous   4  16   0.588   0.524  0.065        15  0.000  1.000   0.051  0.035  0.080  0.000  True
+16    Reptile        MDWM  contiguous  10  16   0.727   0.648  0.079        16  0.000  1.000   0.077  0.063  0.108  0.000  True
+17    Reptile   xDAWN-MDM  contiguous  10  16   0.727   0.605  0.122        16  0.000  1.000   0.123  0.105  0.139  0.000  True
+18       MDWM  Supervised  contiguous  10  16   0.648   0.546  0.102        16  0.000  1.000   0.105  0.073  0.120  0.000  True
+19  xDAWN-MDM  Supervised  contiguous  10  16   0.605   0.546  0.059        16  0.000  1.000   0.048  0.039  0.079  0.000  True
+20    Reptile        MDWM  contiguous  20  16   0.729   0.668  0.061        15  0.000  0.978   0.078  0.044  0.085  0.000  True
+21    Reptile   xDAWN-MDM  contiguous  20  16   0.729   0.639  0.090        16  0.000  1.000   0.093  0.084  0.105  0.000  True
+22       MDWM  Supervised  contiguous  20  16   0.668   0.566  0.102        16  0.000  1.000   0.101  0.077  0.112  0.000  True
+23  xDAWN-MDM  Supervised  contiguous  20  16   0.639   0.566  0.074        16  0.000  1.000   0.066  0.044  0.087  0.000  True
+
+=== application ===
+               method  error_rate    tpr    tnr  caught  false_flags     net  residual_err
+0         ANIL-EEGNet       0.284  0.755  0.821  21.407       12.810   8.597         6.958
+1     EEGNet-ZeroShot       0.284  0.784  0.801  22.237       14.284   7.953         6.127
+2           EEGNet-FT       0.284  0.796  0.794  22.575       14.733   7.841         5.790
+3             Reptile       0.284  0.717  0.744  20.343       18.350   1.993         8.022
+4  SubjectConditioned       0.284  0.710  0.747  20.134       18.130   2.004         8.231
+5              EEGNet       0.284  0.615  0.697  17.443       21.698  -4.256        10.922
+6          Supervised       0.284  0.562  0.543  15.942       32.715 -16.773        12.422
+
+=== burden ===
+           error_rate    mean  median   p90
+per_class                                  
+1               0.299   4.156     3.0   8.0
+2               0.299   9.037     7.0  16.0
+5               0.299  23.047    18.5  40.8
+
+=== timing ===
+                    train_s_median  train_s_total  adapt_ms    device
+group                                                                
+Supervised                   0.000          0.000   381.309  Tesla T4
+Riemann                     11.529        183.843  3943.779  Tesla T4
+PCA-Pretrain                47.026        728.078     3.421  Tesla T4
+MAML-ANIL                   90.441       1443.934    11.801  Tesla T4
+ANIL-EEGNet                102.011       1617.314     4.738  Tesla T4
+EEGNet                     110.590       1746.735   197.832  Tesla T4
+Reptile                    123.454       1970.000    16.304  Tesla T4
+Reptile-EEGNet             137.608       2200.238    40.391  Tesla T4
+SubjectConditioned         153.026       2430.880    14.446  Tesla T4
+Full-MAML                  304.612       4867.602    16.135  Tesla T4

@@ -1,22 +1,39 @@
 %% ===================================================================
-%% SPICSCON 2026 draft — Meta-Learning for Rapid Personalization of
-%% ErrP-Driven BCIs.  IEEEtran conference template.
+%% iCACCESS 2026 camera-ready: Meta-Learning for Few-Shot Personalization
+%% of ErrP BCIs.  IEEEtran conference template, A4, max 6 pages.
 %%
-%% Compile on Overleaf with: Menu -> Compiler -> pdfLaTeX
-%% (BibTeX runs automatically on Overleaf for the \bibliography command.)
+%% Compile with pdfLaTeX + BibTeX (latexmk -pdf main.tex).
 %% ===================================================================
-\documentclass[conference]{IEEEtran}
+\documentclass[conference,a4paper]{IEEEtran}
 \IEEEoverridecommandlockouts
+% First-page copyright footer required by iCACCESS 2026 (bottom left).
+\IEEEpubid{\makebox[\columnwidth]{979-8-3195-4810-8/26/\$31.00~\copyright2026 IEEE\hfill}%
+  \hspace{\columnsep}\makebox[\columnwidth]{\hfill}}
 
 \usepackage{cite}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning}
 \usepackage{url}
 \usepackage[hidelinks]{hyperref}
-% Double-blind: keep PDF metadata free of identifying information.
-\hypersetup{pdfauthor={Anonymous}, pdftitle={}, pdfsubject={}, pdfkeywords={}}
+\hypersetup{pdfauthor={Md Shahidul Islam Dipu, Barshon Sen},
+  pdftitle={Meta-Learning for Few-Shot Personalization of Error-Related Potential
+  Brain-Computer Interfaces}}
+
+% First-page conference header required by iCACCESS 2026 (top left, 9 pt).
+% Extends (not replaces) IEEEtran's title style, which also prints \IEEEpubid.
+\makeatletter
+\let\ps@IEEEtitlepagestyleorig\ps@IEEEtitlepagestyle
+\def\ps@IEEEtitlepagestyle{\ps@IEEEtitlepagestyleorig
+  \def\@oddhead{\parbox[t]{\textwidth}{\raggedright\fontsize{9}{11}\selectfont
+    2026 2nd International Conference on Advances in Computing, Communication,
+    Electrical, and Smart Systems (iCACCESS)\\
+    02--03 October 2026, Dhaka, Bangladesh}\hfil}%
+  \let\@evenhead\@oddhead}
+\makeatother
 
 % Nicer table spacing
 \renewcommand{\arraystretch}{1.15}
@@ -35,32 +52,40 @@
 
 \title{Meta-Learning for Few-Shot Personalization of\\Error-Related Potential Brain-Computer Interfaces}
 
-\author{}
+\author{\IEEEauthorblockN{Md Shahidul Islam Dipu}
+\IEEEauthorblockA{Dept. of Computer Science \& Engineering\\
+Rajshahi University of Engineering \& Technology\\
+Rajshahi-6204, Bangladesh\\
+shahidul03579@gmail.com}
+\and
+\IEEEauthorblockN{Barshon Sen}
+\IEEEauthorblockA{Dept. of Computer Science \& Engineering\\
+Rajshahi University of Engineering \& Technology\\
+Rajshahi-6204, Bangladesh\\
+sen.barshon@gmail.com}}
 
 \maketitle
+\IEEEpubidadjcol
+
 
 % ===================================================================
 \begin{abstract}
-When a brain-computer interface (BCI) errs, the user's electroencephalogram (EEG)
-carries an error-related potential (ErrP) that the system can use to self-correct.
-Because ErrP morphology varies across people, each new user must sit through a long
-calibration session. We ask whether meta-learning can shorten it: instead of one
-decoder per user, a meta-model learns an initialization that a new user adapts from
-a few class-balanced trials. Under one leave-one-subject-out protocol, run
-separately on two structurally different ErrP datasets (not trained across them), we
-benchmark ten methods (three gradient-based and two metric-based meta-learners, a
-FiLM subject-conditioned encoder, and four classical baselines including a
-source-pretrained EEGNet) plus two transfer controls that share the source data. At
-a five-trial budget, the gradient meta-learners, the FiLM encoder, and EEGNet all
-significantly beat a from-scratch supervised baseline on both datasets (subject-level
-Wilcoxon, $N{=}16$, BH-FDR $p<0.05$). The finding \emph{replicates} on the second
-paradigm, where the meta-learners, the FiLM encoder, and Prototypical networks also
-beat EEGNet at $K{=}5$, though this edge closes by $K{=}10$. The meta-learners
-further surpass transfer baselines matched on source data and class weighting; since
-test-time adaptation still differs, we credit the meta-learning approach rather than
-data access alone. Ablations show class-weighted episodic loss is the dominant design
-choice, while FiLM and feature dimensionality add little. We frame the result as
-improved low-data personalization, not a deployment-ready decoder.
+When a brain-computer interface (BCI) errs, the user's electroencephalogram carries
+an error-related potential (ErrP) the system can use to self-correct, but exploiting it
+usually costs every new user tens of minutes of calibration. We ask whether
+meta-learning can replace that calibration with four labeled trials, and answer with
+a controlled benchmark on two structurally different ErrP paradigms under
+leave-one-subject-out evaluation with subject-level statistics ($N{=}16$ each).
+Gradient meta-learners and a FiLM-conditioned encoder on principal-component features
+beat a from-scratch decoder by 5--7 points on one corpus and 15--16 on the other, and
+the gain survives realistic calibration: with four consecutive, unbalanced trials as
+a user would supply them, 15--16 of 16 subjects still improve. Within that representation, class-weighting the
+episodic loss helps full MAML (+1.9--2.9 points) but not head-only ANIL. A matched
+comparison, however, changes the conclusion. An EEGNet pretrained on the source
+subjects' raw epochs and applied with no calibration at all beats the best
+principal-component meta-learner by about six points on both corpora (13--15 of 16
+subjects), and adapting it from four trials, whether by meta-learning or by
+fine-tuning, adds no significant gain. In these data, cross-subject pretraining on an adequate input representation, not the meta-learning objective, carries few-shot ErrP personalization.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -70,246 +95,223 @@ learning, EEG, personalization
 
 % ===================================================================
 \section{Introduction}
-A brain-computer interface (BCI) turns EEG into commands, and like any decoder it
-sometimes gets them wrong. When it does, for instance when a P300 speller picks
-the wrong letter, the user's brain reacts with a stereotyped \emph{error-related
-potential} (ErrP): a fronto-central deflection with an early negativity around
-250\,ms and a later positivity around 320\,ms after the erroneous
-feedback~\cite{chavarriaga2010learning,spuler2015error}. If the system can read
-that signal, it can undo the mistake on its own, with no extra effort from the
-user~\cite{iturrate2015teaching}.
+A user who cannot speak or move spells a word letter by letter through a
+brain-computer interface (BCI), and the speller picks the wrong letter. Their brain
+has already registered the mistake: within roughly 250\,ms of the erroneous feedback
+the EEG carries a stereotyped \emph{error-related potential} (ErrP), a fronto-central
+negativity followed by a positivity near 320\,ms~\cite{chavarriaga2010learning}. A
+decoder that reads that signal lets the interface undo its own mistake, with no extra
+effort from the user~\cite{iturrate2015teaching}.
 
-Calibration is what stands in the way. Because ErrP morphology shifts with
-anatomy, electrode placement, and signal quality, a decoder trained on one person
-transfers poorly to the next, and the usual remedy is to record tens of minutes
-of labelled trials from every new user before the system works. That per-user
-overhead is a large part of why ErrP-BCIs rarely leave the
-lab~\cite{yasemin2023single}.
+Calibration is what stands in the way. ErrP morphology shifts with anatomy,
+electrode placement, and signal quality, so a decoder trained on one person transfers
+poorly to the next, and every new user usually sits through tens of minutes of
+labeled trials first, a large part of why ErrP-BCIs rarely leave the
+lab~\cite{yasemin2023single}. Meta-learning offers a way around it: a model trained
+across many users learns an initialization that adapts to a new user from a handful
+of trials~\cite{finn2017model}. Whether that works for single-trial ErrP decoding,
+and against which alternatives, is the question we answer.
 
-Meta-learning offers a way around it. Rather than learning one decoder per user,
-a meta-model trained across many users learns an initialization that adapts to a
-new user from a handful of trials~\cite{finn2017model}. We put this idea to the
-test and report three things:
+\textbf{Novelty and objective.} Meta-learning for EEG has targeted mostly motor
+imagery~\cite{han2024metaeeg,wang2025tcpl,wei2024harnessing}, while ErrP decoding has
+advanced through deeper supervised or transfer models trained on substantial labeled data~\cite{ren2024deep,yasemin2023single} or through online reinforcement
+learning~\cite{fidencio2025hybrid}. To our knowledge, no prior work tests few-trial
+ErrP personalization across more than one paradigm with subject-level statistics.
+Our objective is not a new algorithm but a controlled answer to whether, and why, meta-learning helps. We contribute:
 \begin{itemize}
-\item a head-to-head benchmark of ten personalization methods: three gradient
-meta-learners, two metric meta-learners, a subject-conditioned FiLM encoder, and
-four classical baselines, all evaluated under one leave-one-subject-out protocol;
-\item replication on a second, structurally different ErrP paradigm (run as a
-separate LOSO experiment, not trained across corpora), where the advantage holds
-and stays stable across three random seeds; and
-\item ablations that pin down which design choices actually carry the result.
+\item \textbf{a four-trial ErrP personalization benchmark} of six meta-learning
+methods against source-aware baselines and matched controls under one
+leave-one-subject-out (LOSO) protocol, replicated on a second paradigm: meta-learners
+beat a from-scratch decoder by 5--7 (INRIA) and 15--16 points (coadaptation), also
+when calibration is realistic (unbalanced, consecutive trials, single draws);
+\item \textbf{a matched analysis of input representation and baseline strength},
+showing that an unadapted source-pretrained EEGNet on raw epochs outperforms the
+principal-component meta-learners and that four-trial adaptation adds nothing
+significant to it; and
+\item \textbf{ablations and practical measures}: class-weighting the episodic loss
+helps full MAML but not head-only ANIL, and we report calibration burden,
+error-correction rates, and compute cost.
 \end{itemize}
-We are not proposing a new algorithm. The value here is the benchmark, the
-two-dataset evidence, and the analysis of what makes few-shot ErrP decoding work.
 
 % ===================================================================
 \section{Related Work}
-\textbf{ErrP detection.} ErrPs have been used both to correct BCI output and to
-supply reward signals to autonomous agents~\cite{chavarriaga2010learning,iturrate2015teaching}.
-Detecting them in a single trial is still hard. Recent surveys weigh linear
-discriminants, support-vector machines, and Riemannian classifiers against one
-another, and they keep returning to the same two practical issues: preprocessing
-choices and the heavy class imbalance of ErrP data~\cite{yasemin2023single,spuler2015error}.
-Convolutional decoders such as EEGNet and the deep/shallow ConvNets have become
-the standard neural baseline for EEG, including ErrP
-detection~\cite{lawhern2018eegnet,schirrmeister2017deep}; we therefore treat a
-source-pretrained EEGNet as the reference our few-shot methods must beat.
+\textbf{ErrP detection.} ErrPs serve both to correct BCI output and as reward signals
+for autonomous agents~\cite{chavarriaga2010learning,iturrate2015teaching}. Single-trial
+detection remains hard; surveys of linear, kernel, and Riemannian classifiers point to
+preprocessing and heavy class imbalance as the recurring issues~\cite{yasemin2023single},
+and recent work adds physiological covariates~\cite{park2025improving}. EEGNet is a widely used compact neural decoder~\cite{lawhern2018eegnet}.
 
-\textbf{Cross-subject transfer for EEG.} Reducing per-user calibration is a
-long-standing goal. Beyond meta-learning, the dominant line is domain
-adaptation, most prominently Riemannian/covariance alignment and Euclidean
-alignment of trials before a shared classifier~\cite{zanini2018transfer,he2020transfer},
-surveyed comprehensively by Wu et al.~\cite{wu2022transfer}. These methods adapt
-the feature distribution rather than learning to adapt; we include Riemannian and
-covariance-alignment baselines as their representatives, and a pretrained
-fine-tuning baseline as the transfer-learning analogue of our meta-learners.
+\textbf{Cross-subject transfer.} Beyond meta-learning, a major line is domain adaptation: Riemannian and Euclidean alignment before a shared
+classifier~\cite{zanini2018transfer,wu2025revisiting}, and, for ERPs, minimum distance
+to (weighted) class means on xDAWN super-trial
+covariances~\cite{barachant2014plugplay,khazem2021minimizing}. EEG foundation models
+pursue calibration-free use at far greater data and compute
+cost~\cite{kuruppu2025foundation}.
 
-\textbf{Meta-learning.} MAML learns an initialization that adapts in a few
-gradient steps~\cite{finn2017model}; ANIL shows that adapting only the classifier
-head usually suffices~\cite{raghu2020rapid}; and Reptile reaches a similar place
-with first-order updates alone~\cite{nichol2018first}. The metric-based
-alternatives, Prototypical~\cite{snell2017prototypical} and Matching
-networks~\cite{vinyals2016matching}, instead classify by similarity in a learned
-embedding. Feature-wise linear modulation (FiLM) conditions a network on side
-information~\cite{perez2018film}; we use it to condition on a subject's support set.
-
-\textbf{Meta-learning for EEG.} Most prior EEG work targets motor imagery: MAML
-and relatives for cross-subject decoding~\cite{duan2020meta,an2020fewshot}, and
-meta-learned representations for zero-calibration use~\cite{han2024metaeeg}.
-Few-shot EEG classification has grown into an active subfield~\cite{wei2024harnessing}.
-Single-trial ErrP personalization has received far less attention, and we are not
-aware of prior work that validates it across datasets. That is the gap we address.
+\textbf{Meta-learning.} MAML learns an initialization that adapts in a few gradient
+steps~\cite{finn2017model}; ANIL adapts only the head~\cite{raghu2020rapid}; Reptile
+uses first-order updates~\cite{nichol2018first}; Prototypical~\cite{snell2017prototypical}
+and Matching networks~\cite{vinyals2016matching} classify by similarity in a learned
+embedding; FiLM conditions a network on side information~\cite{perez2018film}. For ErrPs, a recent CNN--transformer with transfer learning reports $71.8\%$ leave-one-subject-out and $78.7\%$ within-session accuracy~\cite{ren2024deep}; few-trial personalization has received far less attention.
 
 % ===================================================================
-\section{Methods}
+\section{Method}
 
-\subsection{Datasets}
-We use two independent ErrP datasets. The \textbf{primary} dataset is the INRIA
-BCI Challenge (NER~2015) P300 speller (16 subjects, feedback-locked ErrP
-paradigm)~\cite{perrin2012objective}. The \textbf{validation} dataset is the
-ErrP-Coadaptation corpus~\cite{ehrlich2018human}; we use all 16 subjects in the
-public release (indexed S03--S18) with no exclusions of our own. It is an
+\subsection{Problem formulation}
+A decoder is prepared on $N{-}1$ source subjects and specialized to a new user from
+$K$ of that user's own trials; under LOSO each subject is the new user once and never
+contributes to the model tested on it. ErrP data is imbalanced (error prior
+$\sim$0.32 INRIA, $\sim$0.28 coadaptation), so the main benchmark draws a
+\emph{class-balanced} calibration set of $\lfloor K/2\rfloor$ trials per class; the
+regime of interest is $K{=}4$ (two error, two correct trials), and we sweep
+$K\in\{4,10,20\}$. Sec.~\ref{sec:matched} relaxes the balancing.
+
+\subsection{Personalization pipeline}
+Fig.~\ref{fig:pipeline} shows the pipeline: each corpus is band-pass filtered,
+epoched, reduced to 32 whitened principal components, and turned into class-balanced
+episodes; a meta-model is trained across the source subjects under a class-weighted
+episodic loss and adapted to the held-out subject in five gradient steps from its $K$
+calibration trials.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[
+  node distance=6pt,
+  box/.style={draw, rounded corners, align=center, font=\scriptsize,
+              inner sep=3pt, text width=0.84\columnwidth},
+  arr/.style={-{Latex[length=2mm]}, thick}]
+\node[box] (a) {\textbf{Two ErrP corpora} (INRIA P300 speller;
+  ErrP-Coadaptation), \emph{separate} LOSO experiments};
+\node[box, below=of a] (b) {\textbf{Preprocessing}: 1--40\,Hz band-pass,
+  epoch $[-200,600]$\,ms, baseline correction, artifact rejection,
+  32-component PCA (train folds only)};
+\node[box, below=of b] (c) {\textbf{Episodic meta-training} across $N{-}1$ source
+  subjects with class-weighted support/query episodes};
+\node[box, below=of c] (d) {\textbf{Few-shot adaptation} on the held-out subject
+  from $K$ calibration trials, $K\in\{4,10,20\}$};
+\node[box, below=of d] (e) {\textbf{LOSO evaluation}: balanced accuracy \& AUROC;
+  subject-level Wilcoxon with BH-FDR correction};
+\draw[arr] (a)--(b); \draw[arr] (b)--(c); \draw[arr] (c)--(d); \draw[arr] (d)--(e);
+\end{tikzpicture}
+\caption{Overview of the few-shot ErrP personalization pipeline.}
+\label{fig:pipeline}
+\end{figure}
+
+\subsection{Datasets and preprocessing}
+The \textbf{primary} corpus is the INRIA BCI Challenge (NER~2015) P300 speller (16
+subjects, feedback-locked ErrP)~\cite{perrin2012objective}; the \textbf{second} is
+ErrP-Coadaptation~\cite{ehrlich2018human} (all 16 released subjects, S03--S18), an
 observation-ErrP paradigm in which a participant infers a robot's intended object
-from its gaze. The two paradigms differ in task, montage, channel set, and
-sampling rate. We run the \emph{same} LOSO protocol \emph{separately} on each
-dataset; we do \emph{not} train on one and test on the other, since the corpora
-are not channel- or rate-matched. ``Validation'' therefore denotes
-\emph{replication} of the finding on a second, independent paradigm (evidence
-that the result is not idiosyncratic to one corpus) rather than out-of-distribution
-transfer between corpora.
+from its gaze. They differ in task, montage, and sampling rate (200 vs.\ 250\,Hz);
+we run LOSO \emph{separately} on each and never train on one and test on the other.
+A 4th-order zero-phase Butterworth band-pass (1--40\,Hz; plus a 50\,Hz notch at
+250\,Hz) precedes epoching; epochs span $[-200,600]$\,ms around feedback, are
+baseline-corrected over $[-200,0]$\,ms, and are rejected above $\pm100\,\mu$V. The
+meta-learners use 32 whitened principal components of the flattened waveform (PCA fit
+per fold on training subjects only); EEGNet and the covariance methods use raw epochs.
+Sec.~\ref{sec:matched} tests what this asymmetry costs.
 
-\subsection{Preprocessing}
-We applied a 4th-order zero-phase Butterworth bandpass (1--40\,Hz) to the
-continuous EEG before epoching to avoid edge artifacts. The INRIA recordings are
-sampled at 200\,Hz; the coadaptation recordings at 250\,Hz, where a 50\,Hz notch
-was applied before the bandpass to suppress line noise (for the 200\,Hz INRIA data
-the 40\,Hz low-pass already removes the 50\,Hz line component, so no separate notch
-is used). No resampling was performed; each method's time-domain sizes follow the
-native rate. Epochs were cut from $-200$ to $+600$\,ms relative to feedback onset;
-per-epoch per-channel baseline correction was applied over $[-200,0]$\,ms; epochs
-exceeding $\pm100\,\mu$V peak-to-peak were rejected, and $K$ refers to clean trials
-after rejection. Epoch--label alignment used the feedback index to prevent silent
-offset errors. The gradient and metric meta-learners operate on the flattened
-filtered waveform reduced to 32 whitened principal components (PCA fit on training
-subjects only within each fold to prevent leakage); EEGNet and the Riemannian
-methods operate on the raw filtered epochs. This input asymmetry follows each
-method family's standard usage but is a confound for cross-family comparison; the
-feature-representation ablation (Sec.~V) addresses it by varying the PCA
-dimensionality, and ``raw'' there denotes the flattened waveform at a higher PCA
-rank rather than the time-domain tensor fed to EEGNet.
+\subsection{Methods, baselines, and controls}
+Six \textbf{personalization methods} run in the pipeline: Full-MAML~\cite{finn2017model},
+MAML-ANIL~\cite{raghu2020rapid}, and Reptile~\cite{nichol2018first} (gradient-based);
+Prototypical~\cite{snell2017prototypical} and Matching~\cite{vinyals2016matching}
+networks (metric-based); and \textbf{SubjectConditioned}, a FiLM
+encoder~\cite{perez2018film} that computes error/correct prototypes from the support
+set and modulates a feature extractor. All episodic losses are class-weighted by
+inverse class frequency.
 
-\subsection{Personalization methods}
-We compare, under a $K$-shot protocol (the new user's calibration set is
-\emph{class-balanced}, $K/2$ trials per class, so an error trial is always present
-even at $K{=}5$):
-\textbf{Full-MAML}~\cite{finn2017model}, \textbf{MAML-ANIL}~\cite{raghu2020rapid},
-and \textbf{Reptile}~\cite{nichol2018first} (gradient-based);
-\textbf{Prototypical}~\cite{snell2017prototypical} and
-\textbf{Matching}~\cite{vinyals2016matching} networks (metric-based); and
-\textbf{SubjectConditioned}, an encoder that computes error/correct prototypes
-from the support set and modulates a feature extractor via
-FiLM~\cite{perez2018film}. All episodic losses are class-weighted (inverse class
-frequency) to handle the $\sim$75/25 correct/error imbalance.
-
-\subsection{Baselines}
-\textbf{Supervised}: a three-layer MLP (128-64-2 units, LayerNorm, GELU,
-Dropout 0.3) trained from scratch on $K$ trials with early stopping, using a
-class-weighted loss. It is the only method that does \emph{not} see source-subject
-data.
-\textbf{EEGNet}~\cite{lawhern2018eegnet}: a compact depthwise-separable CNN whose
-backbone is pretrained on the $N{-}1$ source subjects with a class-weighted
-cross-entropy loss, then frozen; an $\ell_2$-regularized logistic-regression probe
-(class-balanced, lbfgs) is fit on the $K$ support embeddings. EEGNet is therefore
-itself a source-pretrained transfer baseline with the same data access as the
-meta-learners, not a from-scratch method.
-\textbf{Riemannian}~\cite{barachant2012multiclass} and \textbf{Covariance
-Alignment}~\cite{barachant2013classification,zanini2018transfer}: covariance-based
-classifiers on the SPD manifold; their xDAWN spatial filters and tangent-space
-projection are fit on the source subjects, and only the final LDA uses the $K$
-trials, so these too are source-aware.
-To further separate the meta-learning approach from data access, we add two
-\emph{fair-transfer} baselines that see exactly the same $N{-}1$ source subjects:
-\textbf{Pretrain-FT} pretrains the same MLP backbone on all source subjects with
-the \emph{same} class-weighted loss used by the meta-learners, freezes it, and
-fits a class-balanced logistic-regression probe on the $K$ new-user trials;
-\textbf{Pretrain-ZeroShot} keeps that pretrained backbone and its source-trained
-head and applies no new-user adaptation at all. These baselines match the
-meta-learners on data access and class weighting but differ in test-time
-adaptation (a logistic-regression probe vs.\ gradient steps); Table~\ref{tab:methods}
-summarizes where every method sits on data access, class weighting, adaptation,
-and input.
+\textbf{From-scratch reference.} Supervised, a three-layer MLP (128-64-2, LayerNorm,
+GELU, dropout 0.3) trained on the $K$ trials alone, the only method that never sees
+source data. \textbf{Matched controls} see the same source subjects with the same class
+weighting as the meta-learners: Pretrain-FT freezes a source-pretrained MLP and fits a
+logistic-regression probe on the $K$ trials; Pretrain-ZeroShot keeps its source head
+and does not adapt. \textbf{Source-aware baselines}: EEGNet~\cite{lawhern2018eegnet}
+pretrained on the source subjects (class-weighted cross-entropy), used frozen with an
+$\ell_2$ logistic probe on the $K$ support embeddings, as in the main benchmark; and
+xDAWN/tangent-space Riemannian~\cite{barachant2012multiclass} and covariance-alignment
+classifiers~\cite{zanini2018transfer} whose LDA is fit on the $K$ trials.
+Sec.~\ref{sec:matched} adds the raw-input variants of Table~\ref{tab:methods}.
 
 \begin{table}[t]
-\caption{Method characteristics. Src.\ = sees source-subject data; CW =
-class-weighted loss. Input: PCA ($32$ components of the flattened waveform),
-flat (flattened waveform), or epochs (raw $C\times T$).}
+\caption{Methods. Src.: sees source subjects; CW: class-weighted loss;
+$^\ast$: added in the matched benchmark (Sec.~\ref{sec:matched}).}
 \label{tab:methods}
 \centering
 \footnotesize
-\begin{tabular}{lcccl}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccll}
 \toprule
 Method & Src. & CW & Test-time adaptation & Input \\
 \midrule
-Supervised        & no  & yes & train from scratch ($K$)   & PCA \\
-Pretrain-ZeroShot & yes & yes & none                       & PCA \\
-Pretrain-FT       & yes & yes & LR probe (frozen)          & PCA \\
-Full-MAML         & yes & yes & gradient, full ($5$ steps) & PCA \\
-Reptile           & yes & yes & gradient, full ($5$ steps) & PCA \\
-MAML-ANIL         & yes & yes & gradient, head ($5$ steps) & PCA \\
-Subj.-Cond.       & yes & yes & FiLM + gradient            & PCA \\
-Prototypical      & yes & bal.\ ep. & nearest-prototype     & flat \\
-Matching          & yes & bal.\ ep. & attention $k$NN       & flat \\
-EEGNet            & yes & yes & LR probe (frozen)          & epochs \\
-Riemannian        & yes & LDA & LDA on $K$ covariances     & epochs \\
-Cov.\ Align.      & yes & LDA & align + LDA on $K$         & epochs \\
+Full-MAML / Reptile         & yes & yes & gradient, full (5 steps)   & PCA \\
+MAML-ANIL                   & yes & yes & gradient, head (5 steps)   & PCA \\
+Subj.-Cond.                 & yes & yes & FiLM + gradient, head      & PCA \\
+Prototypical / Matching     & yes & bal.\ ep. & prototype / attention & flat \\
+\midrule
+EEGNet (probe)              & yes & yes & LR probe (frozen)          & epochs \\
+EEGNet-ZeroShot$^\ast$      & yes & yes & none                       & epochs \\
+EEGNet-FT$^\ast$            & yes & yes & all layers (50 steps)      & epochs \\
+ANIL-EEGNet$^\ast$          & yes & yes & gradient, head (5 steps)   & epochs \\
+Reptile-EEGNet$^\ast$       & yes & yes & gradient, full (5 steps)   & epochs \\
+Riemannian / Cov.\ Align.   & yes & LDA & LDA on $K$                 & epochs \\
+xDAWN-MDM$^\ast$ / MDWM$^\ast$ & yes & -- & class means (MDWM: blended) & epochs \\
+\midrule
+Supervised                  & no  & yes & train from scratch         & PCA \\
+Pretrain-FT                 & yes & yes & LR probe (frozen)          & PCA \\
+Pretrain-ZeroShot           & yes & yes & none                       & PCA \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \end{table}
 
 \subsection{Implementation details}
-MAML: inner LR 0.01, 5 inner steps, outer LR 0.001 (Adam, weight decay
-$10^{-4}$). ANIL: same, inner loop on head only. Reptile: 5 inner steps,
-outer step 0.1. SubjectConditioned: 32-dim subject embedding from the
-prototype trio, FiLM $\gamma/\beta$ from an embedding MLP. Meta-training runs
-2000 meta-iterations with a meta-batch of 4 subjects; each episode is balanced
-with 10 support and 40 query trials (5/20 per class). Test-time adaptation uses
-5 inner steps; for the episodic methods (meta- and metric-based) the $K$-shot
-score is averaged over 10 independent calibration draws, whereas the single-shot
-baselines (Supervised, Pretrain, EEGNet, Riemannian) use one balanced draw. The
-INRIA recordings are sampled at 200\,Hz and the coadaptation recordings at
-250\,Hz, so EEGNet's temporal kernel length ($f_s/2$) is 100 and 125 samples
-respectively. PCA retains 32 whitened components, fit per fold on the training
-subjects only. All hyperparameters were fixed \emph{a priori} from the cited
-source papers and a single pilot subject; none were tuned on the held-out
-(test) subjects, so the LOSO estimates are leakage-free. Code, trained per-fold
-checkpoints, an \texttt{analysis.py} that regenerates every table and test, and
-the exact preprocessing/episode configuration (including the per-fold retained
-PCA variance) are released (anonymized for review):
-\url{https://anonymous.4open.science/r/errp-meta}.
+MAML uses inner LR 0.01 (5 steps) and outer LR $5{\times}10^{-4}$ (Adam, cosine
+decay, gradient clipping at 1); Full-MAML is second-order, ANIL adapts only the head
+(first-order). Reptile uses 5 inner SGD steps and outer step 0.1.
+SubjectConditioned derives FiLM $\gamma/\beta$ from a 32-dim subject embedding.
+Meta-training runs 2000 iterations (meta-batch 4 subjects; episodes of 10 support +
+40 query, class-balanced). EEGNet ($F_1{=}8$, $D{=}2$, $F_2{=}16$, temporal kernel
+$f_s/2$) is pretrained with Adam ($10^{-3}$) and early stopping; at $K{<}10$ its probe
+additionally sees three mixup interpolations per support trial. These hyperparameters are based on the cited papers' defaults and were fixed on INRIA before the
+LOSO evaluation, using one pilot subject; they were then applied unchanged to the
+coadaptation corpus, which thus checks against dataset-specific tuning. The
+matched-benchmark settings were fixed a priori and never tuned: EEGNet-FT fine-tunes
+all layers (Adam $10^{-4}$, 50 steps, BatchNorm statistics frozen); ANIL-/Reptile-EEGNet
+reuse the MAML/Reptile settings on an EEGNet backbone; MDWM uses trade-off 0.5 on
+4-filter xDAWN super-trial covariances. Code and per-fold results are released:
+\url{https://github.com/Md-Shahidul-Islam-Dipu/Errp-Meta}.
 
 \subsection{Protocol and statistics}
-We evaluate LOSO across all subjects, with three random seeds (42, 123, 456)
-and $K\in\{5,10,20\}$. We report balanced accuracy and AUROC, both robust to the
-class imbalance, as mean\,$\pm$\,std over the three seeds. We do not tabulate F1:
-binary F1 depends on which class is labelled positive (the two corpora use opposite
-codings) and rewards majority-class prediction (e.g.\ the majority-predicting
-Pretrain-ZeroShot attains a high binary F1 despite near-chance balanced
-accuracy), so it is misleading here; the error class is the minority in both
-corpora (prior $\sim$0.32 INRIA, $\sim$0.20 coadaptation). The unit of analysis
-for inference is the \emph{subject}: under LOSO the three seeds are repeated
-measurements of the same 16 held-out subjects, not independent samples, so we
-first average each subject's score across seeds and run paired Wilcoxon
-signed-rank tests at $N=16$ (exact null distribution). We apply Benjamini--Hochberg
-false-discovery-rate (FDR) correction across the full set of 69 comparisons per
-dataset (23 method pairs $\times$ 3 values of $K$) and report the rank-biserial
-effect size $r=Z/\sqrt{N}\in[-1,1]$. With $N=16$ the smallest attainable
-two-sided exact $p$ is $2/2^{16}\approx3.1\times10^{-5}$; we report values at this
-floor as such rather than extrapolating a normal tail. Because $r$ and the
-$p$-value both saturate once all 16 subjects move the same way, they convey
-direction but not magnitude; for the headline comparisons we therefore also report
-the median paired difference with a 95\% bootstrap confidence interval over
-subjects (10{,}000 resamples). The $\pm$ in the tables is the spread across the
-three seeds (run-to-run stability), \emph{not} a subject-level confidence interval;
-the bootstrap intervals quantify the latter.
+The main benchmark uses three seeds (42, 123, 456) and averages the episodic methods
+and EEGNet over 10 calibration draws (other baselines: one draw). The unit of
+inference is the \emph{subject}: we average each subject over seeds and draws and run
+paired Wilcoxon signed-rank tests at $N{=}16$ (exact null; floor
+$p{=}3.1{\times}10^{-5}$), with Benjamini--Hochberg FDR correction within each family
+of comparisons (69 per dataset in the main benchmark) and rank-biserial effect size
+$r$. For headline pairs we give the median paired difference with a 95\% bootstrap
+CI over subjects. Table $\pm$ values are across-seed spread. We report balanced
+accuracy and AUROC, both robust to imbalance.
 
 % ===================================================================
-\section{Results}
+\section{Main benchmark}
 
 \subsection{Primary dataset}
+\label{sec:primary}
+In Tables~\ref{tab:primary}--\ref{tab:validation}, $\dagger$ marks methods that
+significantly beat Supervised at $K{=}4$ (BH-FDR $p<0.05$) and, in
+Table~\ref{tab:primary}, $\ddagger$ methods not significantly different from EEGNet
+(probe) at $K{=}4$; bold marks the best entry per column.
 
 \begin{table}[t]
-\caption{Primary dataset (INRIA NER 2015): balanced accuracy (mean\,$\pm$\,std,
-3 seeds, $N{=}16$) and AUROC at $K{=}5$. ${\dagger}$ beats Supervised;
-${\ddagger}$ not distinguishable from EEGNet (both at $K{=}5$, BH-FDR $p{<}0.05$).
-Bold = best per column.}
+\caption{Primary dataset (INRIA): balanced accuracy (mean\,$\pm$\,std, 3 seeds,
+$N{=}16$) and AUROC at $K{=}4$.}
 \label{tab:primary}
 \centering
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
-Method & $K{=}5$ & $K{=}10$ & $K{=}20$ & AUROC \\
+Method & $K{=}4$ & $K{=}10$ & $K{=}20$ & AUROC \\
 \midrule
-EEGNet$^{\dagger}$              & $0.600 \pm .009$ & $0.628 \pm .004$ & $\mathbf{0.645} \pm .011$ & 0.640 \\
+EEGNet (probe)$^{\dagger}$      & $0.600 \pm .009$ & $0.628 \pm .004$ & $\mathbf{0.645} \pm .011$ & 0.640 \\
 Reptile$^{\dagger\ddagger}$    & $0.594 \pm .002$ & $0.600 \pm .003$ & $0.607 \pm .003$ & 0.637 \\
 Subj.-Cond.$^{\dagger\ddagger}$ & $0.584 \pm .007$ & $0.584 \pm .009$ & $0.587 \pm .013$ & 0.617 \\
 Full-MAML$^{\dagger\ddagger}$  & $0.584 \pm .009$ & $0.590 \pm .011$ & $0.590 \pm .008$ & 0.625 \\
@@ -326,45 +328,31 @@ Pretrain-FT                    & $0.537 \pm .014$ & $0.542 \pm .012$ & $0.544 \p
 \end{tabular}}
 \end{table}
 
-At $K{=}5$, the gradient-based meta-learners, the FiLM encoder, and EEGNet all
-significantly outperform the from-scratch supervised baseline
-(Table~\ref{tab:primary}; BH-FDR $p<0.05$,
-$r=0.82$--$1.0$, $\Delta=5$--$7$\,pp). No meta-learner significantly differs from
-EEGNet at $K{=}5$ ($p=0.49$--$0.94$): at this shot count they are effectively
-equivalent. The metric-based methods (Prototypical, Matching) and the
-covariance-based baselines do not significantly beat the supervised baseline at
-any $K$, consistent with their need for more samples to stabilize covariance
-estimates or learned embeddings. As $K$ grows, EEGNet pulls ahead: at $K{=}20$ it
-significantly exceeds Full-MAML, MAML-ANIL, and the FiLM encoder (0.645 vs.\
-0.585--0.590; BH-FDR $p<0.02$, $r=0.72$--$0.79$) and is numerically ahead of
-Reptile (0.645 vs.\ 0.607). Meta-learning's advantage on this dataset is thus
-specific to the extreme low-data regime, where it merely matches, rather than
-beats, a source-pretrained CNN. The strongest gain over Supervised at $K{=}5$ is
-Reptile's (median paired difference $+0.051$, 95\% bootstrap CI $[+0.038,+0.086]$).
-AUROC tracks balanced accuracy across $K$ (e.g.\ EEGNet $0.640/0.679/0.693$ and
-Reptile $0.637/0.642/0.648$ at $K{=}5/10/20$); the per-$K$ AUROC table is released
-with the code.
+At $K{=}4$ the gradient meta-learners, the FiLM encoder, and EEGNet (probe)
+significantly outperform Supervised (Table~\ref{tab:primary}; $r=0.82$--$1.0$,
+$\Delta=5$--$7$\,pp; Reptile median $+0.051$, 95\% CI $[+0.038,+0.086]$), with 15 of 16
+subjects improving under Reptile. No meta-learner differs significantly from EEGNet (probe) at
+$K{=}4$ ($p=0.49$--$0.94$); by $K{=}20$ EEGNet (probe) significantly exceeds Full-MAML,
+MAML-ANIL, and the FiLM encoder (BH-FDR $p<0.02$). The metric-based and covariance
+methods do not beat Supervised at any $K$.
 
 \subsection{Replication on a second dataset}
 
 \begin{table}[t]
-\caption{Second-dataset replication (ErrP-Coadaptation), same format as
-Table~\ref{tab:primary}. ${\dagger}$ beats Supervised at $K{=}5$ (BH-FDR
-$p{<}0.05$); bold = best per column. Meta-learners, FiLM, and Prototypical beat
-EEGNet at $K{=}5$ only.}
+\caption{Second dataset (ErrP-Coadaptation); format as Table~\ref{tab:primary}.}
 \label{tab:validation}
 \centering
 \resizebox{\columnwidth}{!}{%
 \begin{tabular}{lcccc}
 \toprule
-Method & $K{=}5$ & $K{=}10$ & $K{=}20$ & AUROC \\
+Method & $K{=}4$ & $K{=}10$ & $K{=}20$ & AUROC \\
 \midrule
-Reptile$^{\dagger}$            & $\mathbf{0.720} \pm .003$ & 0.724 $\pm$ .005 & 0.731 $\pm$ .006 & 0.799 \\
-Subj.-Cond.$^{\dagger}$        & $0.721 \pm .006$ & 0.724 $\pm$ .004 & 0.723 $\pm$ .008 & 0.800 \\
+Subj.-Cond.$^{\dagger}$        & $\mathbf{0.721} \pm .006$ & 0.724 $\pm$ .004 & 0.723 $\pm$ .008 & 0.800 \\
+Reptile$^{\dagger}$            & $0.720 \pm .003$ & 0.724 $\pm$ .005 & 0.731 $\pm$ .006 & 0.799 \\
 MAML-ANIL$^{\dagger}$          & $0.717 \pm .001$ & 0.720 $\pm$ .001 & 0.722 $\pm$ .001 & 0.799 \\
 Full-MAML$^{\dagger}$          & $0.716 \pm .003$ & 0.720 $\pm$ .001 & 0.724 $\pm$ .001 & \textbf{0.801} \\
 Prototypical$^{\dagger}$       & $0.681 \pm .007$ & \textbf{0.727} $\pm$ .002 & 0.732 $\pm$ .008 & 0.744 \\
-EEGNet$^{\dagger}$             & $0.654 \pm .004$ & 0.713 $\pm$ .009 & $\mathbf{0.749} \pm .003$ & 0.734 \\
+EEGNet (probe)$^{\dagger}$     & $0.654 \pm .004$ & 0.713 $\pm$ .009 & $\mathbf{0.749} \pm .003$ & 0.734 \\
 Matching$^{\dagger}$           & $0.650 \pm .009$ & 0.674 $\pm$ .006 & 0.678 $\pm$ .013 & 0.692 \\
 \midrule
 Pretrain-ZeroShot$^{\dagger}$  & $0.700 \pm .001$ & 0.700 $\pm$ .001 & 0.700 $\pm$ .001 & 0.767 \\
@@ -376,177 +364,158 @@ Cov.\ Align.                   & $0.521 \pm .030$ & 0.566 $\pm$ .009 & 0.564 $\p
 \end{tabular}}
 \end{table}
 
-The more demanding test is whether the finding reproduces on a structurally
-different paradigm (run as a separate LOSO experiment, not trained across corpora).
-It does, and most clearly at $K{=}5$. On the coadaptation data (a different task,
-montage, and stimulus timing) all meta-learners beat the supervised baseline by
-roughly 15--16 points ($p=3.1\times10^{-5}$, the exact floor at $N{=}16$, $r=1.0$;
-Reptile median $+0.159$, 95\% CI $[+0.123,+0.187]$). Here several families also beat
-the source-pretrained EEGNet at $K{=}5$: not only the gradient meta-learners
-(Reptile median $+0.065$, CI $[+0.035,+0.086]$) but also the FiLM encoder
-($+0.073$) and Prototypical networks ($+0.021$, $p<0.005$); Matching does not.
-This EEGNet gap is confined to $K{=}5$: by $K{=}10$ the meta-learners and EEGNet no
-longer differ significantly ($p=0.40$--$0.63$), and at $K{=}20$ EEGNet is the
-strongest method (0.749). The across-seed spread of the meta-learners is only
-0.001--0.008 balanced accuracy, so the $K{=}5$ result is not seed-dependent. The
-covariance-based baselines again fail to beat supervised (in fact they fall
-significantly below it here), reproducing the same negative result on both datasets.
+On the coadaptation paradigm all meta-learners beat Supervised at $K{=}4$ by 15--16
+points ($p=3.1\times10^{-5}$, $r=1.0$, 16 of 16 subjects; Reptile median $+0.159$,
+CI $[+0.126,+0.187]$) and also beat EEGNet (probe) (Reptile $+0.065$, CI
+$[+0.035,+0.086]$; BH-FDR $p<0.001$), a gap that closes by $K{=}10$. Across-seed
+spread is 0.001--0.008.
 
-\subsection{Meta-learning objective vs.\ data access}
-Because the meta-learners see every source subject while the from-scratch
-supervised baseline does not, part of their edge could reflect data access rather
-than the meta-learning objective. The two fair-transfer baselines control for this
-directly: both pretrain on the same $N{-}1$ source subjects \emph{and} use the same
-inverse-frequency class weighting as the meta-learners. They
-differ from the meta-learners in two ways: no episodic meta-objective, and a
-logistic-regression probe instead of gradient adaptation at test time, so the gap
-isolates the meta-learning \emph{approach} jointly, not the objective in isolation.
-The meta-learners significantly outperform \emph{both} on \emph{both} datasets at
-every $K$. On the
-primary data at $K{=}5$, Reptile exceeds Pretrain-FT by 5.7 points (BH-FDR
-$p<0.01$, $r=0.77$) and Pretrain-ZeroShot by 3.1 points ($p<0.01$, $r=0.80$); on
-the validation data the gaps widen to roughly 13 points over Pretrain-FT
-($p=3.1\times10^{-5}$, $r=1.0$) and 2 points over the strong zero-shot transfer
-($p<0.01$, $r=0.73$). Two further observations sharpen the picture. First, naive
-$K$-shot fine-tuning is not itself a reliable win: Pretrain-FT does not
-significantly beat the from-scratch supervised baseline on the primary dataset
-(and is numerically worse at $K{=}20$), and at $K{=}5$ it trails its own zero-shot
-variant: fitting a head on five noisy trials adds more variance than signal.
-Second, simple zero-shot transfer is a surprisingly strong baseline on the
-validation paradigm (0.700, above EEGNet at $K{=}5$), yet the meta-learners still
-beat it. Because these baselines match the meta-learners on both data access and
-class weighting, the residual advantage is attributable to the meta-learning
-approach (episodic training plus gradient adaptation) rather than to source-subject
-exposure or imbalance handling; disentangling the objective from the adaptation
-rule (e.g.\ giving the transfer baselines the same gradient adaptation) is left
-to future work.
+\textbf{Objective vs.\ data access.} Pretrain-FT and Pretrain-ZeroShot see the same
+source subjects with the same class weighting, so they separate the meta-learning
+objective from data access \emph{within the PCA representation}. The meta-learners beat
+both on both corpora at every $K$ (e.g., Reptile over Pretrain-FT: $+5.7$ INRIA,
+$+13.0$ coadaptation; over Pretrain-ZeroShot: $+3.1$ and $+2.0$; BH-FDR $p<0.05$).
+Naive probe fitting on four noisy trials is itself harmful: Pretrain-FT trails its own
+zero-shot head. The next section asks whether these conclusions survive a matched
+input representation.
 
-\subsection{Per-subject analysis}
-A group mean can hide a method that helps a few subjects and hurts the rest, so
-Fig.~\ref{fig:responder} breaks the $K{=}5$ result down subject by subject,
-plotting the best meta-learner (Reptile) against the supervised baseline. Almost
-every point sits above the diagonal: 16 of 16 subjects improve on the validation
-data and 15 of 16 on the primary data. The benefit is broad, not the work of a
-handful of outliers.
+% ===================================================================
+\section{Matched benchmark}
+\label{sec:matched}
+The main benchmark leaves three confounds: meta-learners and EEGNet saw different
+inputs, EEGNet was only probed, and balanced, draw-averaged calibration is not what a
+user supplies. We therefore retrained the gradient meta-learners, the FiLM encoder, the controls, and EEGNet once per fold (seed 42), added the variants marked in Table~\ref{tab:methods}, and scored all of them on \emph{identical} calibration draws under three protocols:
+\emph{balanced} (as above), \emph{natural} ($K$ random trials, errors at the user's own
+rate), and \emph{contiguous} ($K$ consecutive trials; draw 0 is the first $K$ trials
+of the recording). Each method is scored on all remaining trials of the subject. When
+a draw holds a single class, gradient methods adapt on it, while probe and
+class-mean methods fall back to their source model. Table~\ref{tab:matched} closely reproduces the main benchmark (Reptile 0.593 vs.\ 0.594 on INRIA, 0.731 vs.\ 0.720 on coadaptation); remaining differences, e.g.\ for EEGNet (probe), reflect the query set (all remaining trials rather than a class-balanced subset).
 
-\begin{figure}[t]
+\begin{table}[t]
+\caption{Matched benchmark at $K{=}4$ (seed 42, $N{=}16$): balanced accuracy under
+balanced (Bal.) and contiguous (Cont.) calibration, and AUROC (balanced).}
+\label{tab:matched}
 \centering
-\includegraphics[width=\columnwidth]{figures/fig5_responder_scatter.pdf}
-\caption{Per-subject balanced accuracy at $K{=}5$: Reptile vs.\ supervised.
-Points above the diagonal are subjects where meta-learning helps; color encodes
-the gain.}
-\label{fig:responder}
-\end{figure}
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lccc|ccc}
+\toprule
+ & \multicolumn{3}{c|}{INRIA} & \multicolumn{3}{c}{Coadaptation} \\
+Method & Bal. & Cont. & AUROC & Bal. & Cont. & AUROC \\
+\midrule
+\multicolumn{7}{@{}l}{\textit{Raw epochs, EEGNet backbone}}\\
+ANIL-EEGNet       & \textbf{.671} & \textbf{.672} & \textbf{.738} & .788 & .789 & \textbf{.879} \\
+EEGNet-ZeroShot   & .657 & .657 & .721 & .792 & \textbf{.792} & .876 \\
+EEGNet-FT         & .649 & .647 & .707 & \textbf{.795} & .789 & .876 \\
+EEGNet (probe)    & .577 & .597 & .618 & .656 & .677 & .737 \\
+Reptile-EEGNet    & .590 & .567 & .623 & .673 & .655 & .737 \\
+\multicolumn{7}{@{}l}{\textit{32-PCA features}}\\
+Reptile           & .593 & .582 & .628 & .731 & .717 & .809 \\
+Subj.-Cond.       & .581 & .580 & .617 & .728 & .722 & .804 \\
+Full-MAML         & .589 & .554 & .620 & .723 & .711 & .803 \\
+MAML-ANIL         & .573 & .559 & .605 & .720 & .714 & .801 \\
+Pretrain-ZeroShot & .567 & .568 & .592 & .702 & .701 & .774 \\
+Pretrain-FT       & .525 & .539 & .540 & .590 & .618 & .647 \\
+\multicolumn{7}{@{}l}{\textit{xDAWN covariances}}\\
+MDWM              & .583 & .567 & .617 & .642 & .623 & .713 \\
+xDAWN-MDM         & .574 & .554 & .593 & .612 & .588 & .664 \\
+\midrule
+Supervised        & .531 & .514 & .546 & .553 & .524 & .575 \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\textbf{Input representation and baseline strength.} The confound is large. The
+same ANIL learner gains 9.8 (INRIA) and 6.8 points (coadaptation) when moved from 32-PCA
+features to an EEGNet backbone on raw epochs (0/16 subjects favor PCA, $p=3.1{\times}10^{-5}$).
+More consequentially, the source-pretrained EEGNet \emph{with no calibration at all}
+(EEGNet-ZeroShot) beats the PCA meta-learners; over the best, Reptile, by $+6.4$ points on INRIA
+(13/16 subjects, BH-FDR $p=0.005$) and $+6.2$ on coadaptation (15/16, $p<0.001$). The
+main benchmark's EEGNet looked weaker only because its four-trial probe discards the
+source classifier (EEGNet-FT beats it by 7.2 and 13.9 points, 16/16). Adapting the
+strong source model from four trials adds nothing significant: neither ANIL-EEGNet
+($+1.4$, $-0.4$ points; BH-FDR $p=0.22$, $0.50$) nor full fine-tuning ($-0.8$, $+0.3$;
+uncorrected $p\ge0.38$) beats EEGNet-ZeroShot at $K{=}4$; fine-tuning helps only marginally by $K{=}20$ ($+0.9$ points on coadaptation, uncorrected $p{=}0.004$). Raw input alone is not
+sufficient either: first-order Reptile on the EEGNet backbone does no better than on PCA.
+The Riemannian comparators do not beat Reptile on INRIA (BH-FDR $p\ge0.44$) and trail it by
+9--12 points on coadaptation (16/16).
+
+\textbf{Realistic calibration.} Relaxing the balancing leaves the ranking intact.
+Under the contiguous protocol Reptile still beats Supervised by 6.8 (INRIA, 15/16,
+$p=2{\times}10^{-4}$) and 19.3 points (coadaptation, 16/16, $p=3.1{\times}10^{-5}$), and
+on the \emph{same} draw it wins 84\% and 100\% of the time; its worst-decile draw
+(0.50, 0.64) is at or above Supervised's (0.48, 0.49). Unbalanced draws matter:
+28--36\% of four-trial natural or contiguous draws contain no error trial at all.
+Measured on the recordings, collecting two error and two correct trials takes a median
+of 6 (INRIA) and 7 (coadaptation) raw trials, and 11 and 16 to cover 90\% of starting
+points (five of each: medians 14 and 18.5).
+
+\textbf{Practical significance and cost.} At the default decision threshold and the
+coadaptation error rate (28\%), per 100 selections EEGNet-ZeroShot catches 22.2 of
+28.4 errors while flagging 14.3 correct selections, Reptile catches 20.3 and flags 18.4,
+and Supervised catches 15.9 and flags 32.7. On INRIA (32\% errors) every method flags
+about as many correct selections as it catches errors (best: ANIL-EEGNet, 18.8 caught,
+17.2 flagged), so none is yet useful for automatic undo there. Offline, one LOSO fold
+(15 source subjects) costs 1.0--1.8\,min of Tesla T4 time for EEGNet pretraining,
+1.4--2.6\,min for ANIL, Reptile, ANIL-EEGNet and the FiLM encoder, and 4.7--5.1\,min for
+second-order Full-MAML; the full matched benchmark took 4.4 and 4.8 GPU-hours.
+Per-user adaptation takes 5--17\,ms for the meta-learners, about 0.2\,s for EEGNet
+fine-tuning, and none for EEGNet-ZeroShot.
 
 % ===================================================================
 \section{Ablations}
-Which design choices actually carry the result? Fig.~\ref{fig:ablation} isolates
-three of them on the primary dataset.
+\label{sec:ablation}
+Fig.~\ref{fig:ablation} isolates three design choices of the PCA pipeline on INRIA.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=\textwidth]{figures/fig4_ablations.pdf}
-\caption{Ablations (primary dataset). (a) class-weighted vs.\ uniform loss;
-(b) the FiLM gain plotted as the \emph{paired} per-subject difference
-(FiLM\,$-$\,No-FiLM) with a 95\% confidence interval across subjects (matching the
-within-subject test), which excludes zero only at $K{=}5$ ($*$); (c) 32 vs.\ 128
-PCA components.}
+\caption{Ablations (INRIA, 3 seeds). (a) class-weighted vs.\ uniform loss;
+(b) paired per-subject FiLM gain (FiLM\,$-$\,No-FiLM) with 95\% CI, which excludes
+zero only at $K{=}4$ ($*$); (c) 32 vs.\ 128 PCA components.}
 \label{fig:ablation}
 \end{figure*}
 
-\textbf{Class-weighted vs.\ uniform episodic loss.} This is the most impactful
-choice. Weighting the loss by inverse class frequency lifts Full-MAML balanced
-accuracy by 2--3 points and prevents the model from collapsing onto the majority
-(correct) class, a real risk given the 75/25 split.
-\textbf{FiLM vs.\ no-FiLM.} FiLM conditioning gives a small but significant gain at
-$K{=}5$ ($+1.5$\,pp; paired Wilcoxon, $N{=}16$, $p{=}0.009$, $r{=}0.65$) that
-disappears by $K{=}10$ ($p>0.27$; Fig.~\ref{fig:ablation}b). It is thus a minor,
-low-shot-specific contributor rather than a primary driver.
-\textbf{Feature dimensionality (32 vs.\ 128 PCA components).} Quadrupling the PCA
-rank of the flattened waveform from 32 to 128 components did not improve the
-meta-learners, indicating that 32 components already capture the discriminative
-ErrP morphology and that the aggressive compression is not the bottleneck.
+\textbf{Class weighting} of the episodic loss by inverse class frequency lifts
+Full-MAML by 1.9 and 2.9 points at $K{=}4$ and $10$ (paired Wilcoxon $p{=}0.006$,
+$0.004$; $+2.1$, $p{=}0.07$ at $K{=}20$) but leaves MAML-ANIL unchanged
+($|\Delta|\le0.4$ points, $p\ge0.86$), possibly because ANIL adapts only the head. \textbf{FiLM} gives a small significant gain at
+$K{=}4$ ($+1.5$\,pp; $p{=}0.009$, $r{=}0.65$) that disappears by $K{=}10$
+($p>0.27$). \textbf{PCA rank}: quadrupling it to 128 components did not help, which, together with the raw-input results, suggests that the limit lies in the flattened projection rather than in the number of components.
 
 % ===================================================================
 \section{Discussion}
-Two factors drive the few-shot gains: class-weighted episodic loss, which prevents
-majority-class collapse under the 75/25 ErrP imbalance, and cross-subject
-pre-training that produces a backbone from which only the classifier head needs
-personalizing. This is consistent with the analysis of Raghu et al.~\cite{raghu2020rapid}:
-MAML-ANIL (head-only adaptation) matches Full-MAML throughout our experiments
-(0.581 vs.\ 0.584 at $K{=}5$ primary; 0.717 vs.\ 0.716 at $K{=}5$ validation),
-indicating that the shared backbone is the key mechanism and full inner-loop
-adaptation over the feature extractor adds little.
+Within a fixed PCA representation, meta-learning is effective: it beats a
+from-scratch decoder and controls matched on data access and class weighting, and
+class-weighting the episodic loss helps its full-network variant. It does not, however, beat a
+conventionally pretrained CNN that sees the raw epochs. Once that model's source head
+is kept rather than replaced by a four-trial probe, it is the strongest calibration-free
+decoder we tested, and four trials of adaptation, meta-learned or fine-tuned, do not
+improve it. What carries few-shot ErrP personalization in our data is cross-subject
+pretraining on an adequate input representation.
 
-The results should be interpreted with their scope in mind. The meta-learners'
-advantage over the strongest neural reference (EEGNet) is confined to the
-five-trial regime, and is clearest on the second dataset: there the gradient
-meta-learners, the FiLM encoder, and Prototypical networks all beat EEGNet at
-$K{=}5$, but the gap closes by $K{=}10$ and reverses by $K{=}20$ (EEGNet 0.749),
-and on the primary dataset they only match EEGNet at $K{=}5$ before EEGNet pulls
-ahead. We emphasize that this is \emph{replication} on a second paradigm, not
-trained transfer across corpora. Meta-learning's practical niche is therefore
-narrow: the extreme low-data regime. The covariance-based methods consistently
-fail at small $K$ on both datasets, consistent with their need for well-conditioned
-covariance estimates.
+\textbf{Clinical implications.} In the main benchmark the meta-learners' edge over EEGNet was confined to four trials and closed by ten; the matched benchmark shows that this edge reflected the weak probe baseline rather than an advantage of meta-learning. The practical message is nonetheless favorable: a source-pretrained decoder is usable from the first trial of a session, which matters for users who tire quickly, and short per-session recalibration adds little. Where accuracy is still too low for automatic undo (INRIA), progress is more likely to come from choosing the operating point and from better source models than from faster adaptation. A meta-learned initialization remains a reasonable choice when only compressed features are available.
 
-Access to source-subject data does not by itself explain the gains. The
-meta-learners outperform two transfer baselines (Pretrain-FT, Pretrain-ZeroShot)
-that pretrain on the same source subjects with the same class-weighted loss, on
-both datasets and at every shot count. These controls are matched on data access
-and class weighting (the latter being the dominant ablation factor) but still
-differ in test-time adaptation, so we attribute the residual gap to the
-meta-learning approach (episodic training together with gradient adaptation) rather
-than to data volume or imbalance handling alone.
+\textbf{Comparison with existing solutions.} A recent ErrP decoder reports roughly 72--79\% accuracy across leave-one-subject-out and within-session settings~\cite{ren2024deep}, and the single-trial classifiers surveyed in~\cite{yasemin2023single} fall in a comparable band; our calibration-free source EEGNet reaches 0.79 balanced accuracy on coadaptation and 0.66 on the harder INRIA speller. The comparison is indicative only: datasets differ, and balanced accuracy is stricter than raw accuracy.
 
-\textbf{Statistical vs.\ practical significance.} A significant improvement is not
-the same as a usable decoder. On the primary dataset the best methods reach only
-$\sim$0.60 balanced accuracy at $K{=}5$, well above the 0.527 from-scratch
-baseline in relative terms, but far from a deployable single-trial ErrP detector,
-which for closed-loop correction would need both high error-class recall and low
-false-alarm rates at an operating threshold. The cross-dataset numbers
-($\sim$0.72) are more encouraging but still short of deployment. We therefore frame
-the contribution as evidence that meta-learning improves low-data personalization,
-not as a claim of deployment readiness; cost-sensitive thresholding and online
-evaluation are needed before practical use.
-
-\textbf{Limitations.} Several caveats bound these claims. (i)~\emph{Input is not
-matched across method families} (Table~\ref{tab:methods}): the meta-learners use
-32-component PCA features while EEGNet and the Riemannian methods use the raw
-signal, so ``meta-learning vs.\ EEGNet'' partly compares input formats; an
-input-matched comparison (EEGNet on PCA features, or a meta-learner on EEGNet's raw
-input) is needed to fully separate the two. (ii)~\emph{EEGNet is used frozen} with
-a logistic-regression probe; an end-to-end fine-tuned EEGNet (plausibly stronger,
-especially at $K{\ge}10$ where EEGNet already leads) is not included. (iii)~The
-$K$-shot calibration set is \emph{class-balanced}, so the headline ``five trials''
-is five balanced trials; obtaining $K/2$ error trials naturally requires more than
-$K$ raw trials at a 20--30\% error rate, and a deployed user gets a single draw
-rather than the 10-draw average used for the episodic methods. (iv)~All experiments
-are offline simulations on two datasets and one backbone family (3-layer MLP /
-EEGNet) across three seeds; we report balanced accuracy and AUROC but not an
-operating-point precision/recall (error-recall vs.\ false-alarm) analysis, which
-real-time correction would require. Additional datasets, an input-matched and
-fine-tuned EEGNet, larger backbones, more seeds, and an online closed-loop
-evaluation would each strengthen the benchmark.
+\textbf{Limitations.} (i)~The matched benchmark uses one seed; the main benchmark's
+seed spread ($\le$0.013) suggests this is minor. (ii)~The added EEGNet variants were
+not tuned, so they are, if anything, understated. (iii)~Results are at the default
+threshold; error-recall at low false-alarm rates is not analyzed. (iv)~All experiments
+are offline, on two datasets, with calibration and test trials from the same
+recording. (v)~The pipeline's hyperparameters were fixed with one INRIA pilot subject;
+the unchanged replication on coadaptation limits, but does not exclude, dataset-specific
+tuning.
 
 % ===================================================================
 \section{Conclusion}
-On two independent ErrP paradigms, gradient-based meta-learning, a
-FiLM-conditioned encoder, and a source-pretrained EEGNet all significantly improve
-over a from-scratch supervised baseline in the five-trial calibration regime, and
-the finding \emph{replicates} on a second, structurally different paradigm. There,
-at $K{=}5$, the gradient meta-learners, the FiLM encoder, and Prototypical networks
-all outperform EEGNet, with seed-robust effects and broad per-subject coverage
-(15--16 of 16 subjects improve); this edge over EEGNet is, however, specific to
-$K{=}5$ and does not hold at $K{=}10$--$20$. The main design lesson is that
-class-weighted episodic loss matters more than architecture, and head-only
-adaptation (ANIL) matches full inner-loop MAML throughout. Against transfer
-baselines matched on source-data access and class weighting, the meta-learners
-still win, locating the gain in the meta-learning approach rather than data access.
-The absolute accuracies ($\sim$0.60 primary, $\sim$0.72 second dataset at $K{=}5$)
-are not yet deployment-grade; future work should add an input-matched and
-end-to-end fine-tuned EEGNet, extend to additional ErrP datasets, and validate in a
-closed-loop online setting.
+We asked whether meta-learning can personalize an ErrP decoder from four calibration
+trials, on two paradigms with subject-level statistics. Meta-learners on
+principal-component features beat a from-scratch decoder and matched transfer controls,
+robustly and under realistic calibration, and class-weighting the episodic loss helps
+full MAML. A matched comparison shows that a source-pretrained EEGNet on raw
+epochs, with no calibration, beats them on both paradigms and is not improved by
+four-trial adaptation. Future work should combine strong raw-input source models with
+operating-point selection and validate them in closed-loop online use.
 
 % ===================================================================
 \bibliographystyle{IEEEtran}

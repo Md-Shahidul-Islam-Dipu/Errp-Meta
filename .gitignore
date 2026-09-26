@@ -6,6 +6,12 @@ paper/FIX_PLAN.md
 paper/REVIEW_RESPONSE.md
 WORK_OVERVIEW.md
 EXTENSIONS.md
+BSc_MultiTask_Pipeline.md
+BSc_Results_Report.md
+Decodability_Index_Pipeline.md
+
+# ─── Thesis working files (moved here; never publish) ─────────────────────────
+Thesis4000/
 
 # ─── Raw datasets — do NOT redistribute; link to the original sources ─────────
 inria-bci-challenge/
@@ -44,3 +50,14 @@ paper/*.fdb_latexmk
 # ─── OS cruft ─────────────────────────────────────────────────────────────────
 .DS_Store
 Thumbs.db
+
+# ─── Camera-ready revision: private / raw / redundant files ───────────────────
+Conference Management Toolkit - View review.pdf
+Inria_*_Batch/
+coadaption_*_batch/
+Results/Revision_*/ckpt/
+conference-latex-template/
+IEEEtranBST2/
+pdfs/
+paper/1506.02640v5.pdf
+paper/figures/*.png
