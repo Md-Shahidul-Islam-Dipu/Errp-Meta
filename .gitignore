@@ -61,3 +61,10 @@ IEEEtranBST2/
 pdfs/
 paper/1506.02640v5.pdf
 paper/figures/*.png
+
+# CMT upload files (signed copyright form, certified PDF): keep private
+CMT_upload_332/
+2026349975.pdf
+CopyrightReceipt.pdf
+332_pdfExpress.pdf
+332_student.pdf
